@@ -10,7 +10,6 @@ variables:
   buildConfiguration: 'Release'
   dotNetFramework: 'net6.0'
   dotNetVersion: '6.0.x'
-  targetRuntime: 'linux-x64'
   azureSPNName: 'Azure Personal' #get it from your AzureDevOps portal
   azureAppServiceName: 'webapptodofirstappdev' #get it from your Azure portal
 
@@ -41,4 +40,4 @@ steps:
     appType: webApp
     azureSubscription: $(azureSPNName) #this is the name of the SPN
     appName: $(azureAppServiceName) #App Service's unique name
-    package: $(Build.ArtifactStagingDirectory)/01-firstAppTodo/**/*.zip
+    package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
