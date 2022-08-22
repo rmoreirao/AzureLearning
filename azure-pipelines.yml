@@ -38,7 +38,7 @@ steps:
 #Publish it to the Azure App Service
 - task: AzureWebApp@1
   inputs:
-    appType: webAppLinux
+    appType: webApp
     azureSubscription: $(azureSPNName) #this is the name of the SPN
     appName: $(azureAppServiceName) #App Service's unique name
     package: $(Build.ArtifactStagingDirectory)/01-firstAppTodo/**/*.zip
