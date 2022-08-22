@@ -29,7 +29,7 @@ steps:
     publishWebProjects: true
 - task: AzureWebApp@1
   inputs:
-    azureSubscription: '<Azure service connection>'
-    appType: 'webAppLinux'
-    appName: '<Name of web app>'
+    azureSubscription: 'Azure Personal'
+    appType: 'webApp'
+    appName: 'webapptodofirstappdev'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
