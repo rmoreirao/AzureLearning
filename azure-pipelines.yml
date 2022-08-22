@@ -41,4 +41,4 @@ steps:
     appType: webAppLinux
     azureSubscription: $(azureSPNName) #this is the name of the SPN
     appName: $(azureAppServiceName) #App Service's unique name
-    package: $(Build.ArtifactStagingDirectory)/**/*.zip
+    package: $(Build.ArtifactStagingDirectory)/01-firstAppTodo/**/*.zip
