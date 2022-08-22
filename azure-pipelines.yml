@@ -11,7 +11,7 @@ variables:
   dotNetFramework: 'net6.0'
   dotNetVersion: '6.0.x'
   targetRuntime: 'linux-x64'
-  azureSPNName: 'Azure Private' #get it from your AzureDevOps portal
+  azureSPNName: 'Azure Personal' #get it from your AzureDevOps portal
   azureAppServiceName: 'webapptodofirstappdev' #get it from your Azure portal
 
 # Build the app for .NET 6 framework
