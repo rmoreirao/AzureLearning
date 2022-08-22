@@ -22,6 +22,7 @@ steps:
     includePreviewVersions: true
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'Build .NET 6 Application'
+  workingDirectory: '01-firstAppTodo/'
 
 # Publish it as .NET 6 self-contained application for linux runtime
 - task: DotNetCoreCLI@2
