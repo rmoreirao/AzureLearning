@@ -1,7 +1,7 @@
 #This is a Build Deploy Pipeline for .NET 6 Web App to Azure App Service using Azure DevOps Pipeline
 
 trigger:
-- master
+- main
 
 pool:
   vmImage: ubuntu-latest
