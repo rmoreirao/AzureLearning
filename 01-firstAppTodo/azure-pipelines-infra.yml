@@ -8,7 +8,7 @@ variables:
   azureServiceConnection: 'Azure Personal'
   resourceGroupName: 'rg-firstapp-dev3-we'
   location: 'westeurope'
-  templateFile: './infra-as-code.bicep'
+  templateFile: './01-firstAppTodo/infra-as-code.bicep'
 pool:
   vmImage: $(vmImageName)
 
