@@ -41,6 +41,7 @@ steps:
 
 #Publish it to the Azure App Service
 - task: AzureWebApp@1
+  retryCountOnTaskFailure: 3
   inputs:
     appType: webApp
     azureSubscription: $(azureSPNName) #this is the name of the SPN
