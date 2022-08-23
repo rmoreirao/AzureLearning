@@ -1,19 +1,27 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+trigger: none
 
-trigger:
-- main
+name: Deploy Bicep files
 
+variables:
+  vmImageName: 'ubuntu-latest'
+
+  azureServiceConnection: 'Azure Personal'
+  resourceGroupName: 'rg-firstapp-dev3-we'
+  location: 'westeurope'
+  templateFile: './infra-as-code.bicep'
 pool:
-  vmImage: ubuntu-latest
+  vmImage: $(vmImageName)
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: '$(azureServiceConnection)'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '$(resourceGroupName)'
+    location: '$(location)'
+    templateLocation: 'Linked artifact'
+    csmFile: '$(templateFile)'
+    overrideParameters: ' -environment dev3 -subnetAddressPrefix 3 -location $(location) -location_suffix we'
+    deploymentMode: 'Complete'
+    deploymentName: 'DeployPipelineTemplate'
