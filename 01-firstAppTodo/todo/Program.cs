@@ -37,9 +37,8 @@ static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(Microsoft
     var configurationSection = configuration.GetSection("CosmosDb");
     string databaseName = configurationSection.GetSection("DatabaseName").Value;
     string containerName = configurationSection.GetSection("ContainerName").Value;
-    string account = configuration["FirstAppCosmosDBAccount"];
-    string key = configuration["FirstAppCosmosDBKey"];
-    Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+    string databaseConnectionString = configuration["ConnectionString"];
+    var client = new Microsoft.Azure.Cosmos.CosmosClient(databaseConnectionString);
     CosmosDbService cosmosDbService = new CosmosDbService(client, databaseName, containerName);
     Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
     await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");

@@ -1,0 +1,1307 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_webapptodofirstappdev_name": {
+            "defaultValue": "webapptodofirstappdev",
+            "type": "String"
+        },
+        "components_webapptodofirstappdev_name": {
+            "defaultValue": "webapptodofirstappdev",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_firstapp_dev_we_name": {
+            "defaultValue": "vnet-firstapp-dev-we",
+            "type": "String"
+        },
+        "serverfarms_asp_webapptodofirstapp_dev_we_name": {
+            "defaultValue": "asp-webapptodofirstapp-dev-we",
+            "type": "String"
+        },
+        "databaseAccounts_cosmos_firstapp_dev_we_name": {
+            "defaultValue": "cosmos-firstapp-dev-we",
+            "type": "String"
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "defaultValue": "Application Insights Smart Detection",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___webapptodofirstappdev_name": {
+            "defaultValue": "failure anomalies - webapptodofirstappdev",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___appins_webapptodo_dev_we_name": {
+            "defaultValue": "failure anomalies - appins-webapptodo-dev-we",
+            "type": "String"
+        },
+        "components_appins_webapptodo_dev_we_externalid": {
+            "defaultValue": "/subscriptions/67f739cb-80a2-427a-8c48-601bf4dbec36/resourceGroups/rg-firstapp-dev-we/providers/microsoft.insights/components/appins-webapptodo-dev-we",
+            "type": "String"
+        },
+        "workspaces_logan_firstapp_dev_we_externalid": {
+            "defaultValue": "/subscriptions/67f739cb-80a2-427a-8c48-601bf4dbec36/resourceGroups/rg-firstapp-dev-we/providers/microsoft.operationalinsights/workspaces/logan-firstapp-dev-we",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2022-06-01",
+            "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "SmartDetect",
+                "enabled": true,
+                "emailReceivers": [],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "eventHubReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [],
+                "armRoleReceivers": [
+                    {
+                        "name": "Monitoring Contributor",
+                        "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+                        "useCommonAlertSchema": true
+                    },
+                    {
+                        "name": "Monitoring Reader",
+                        "roleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[parameters('components_webapptodofirstappdev_name')]",
+            "location": "westeurope",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "IbizaAIExtensionEnablementBlade",
+                "RetentionInDays": 90,
+                "WorkspaceResourceId": "[parameters('workspaces_logan_firstapp_dev_we_externalid')]",
+                "IngestionMode": "LogAnalytics",
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('virtualNetworks_vnet_firstapp_dev_we_name')]",
+            "location": "westeurope",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "snet-firstappdb-dev-we",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.AzureCosmosDB",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "snet-firstappwebapp-dev-we",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('serverfarms_asp_webapptodofirstapp_dev_we_name')]",
+            "location": "West Europe",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___appins_webapptodo_dev_we_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[parameters('components_appins_webapptodo_dev_we_externalid')]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[parameters('databaseAccounts_cosmos_firstapp_dev_we_name')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_firstapp_dev_we_name'), 'snet-firstappdb-dev-we')]"
+            ],
+            "tags": {
+                "defaultExperience": "Core (SQL)",
+                "hidden-cosmos-mmspecial": ""
+            },
+            "kind": "GlobalDocumentDB",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": true,
+                "virtualNetworkRules": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_firstapp_dev_we_name'), 'snet-firstappdb-dev-we')]",
+                        "ignoreMissingVNetServiceEndpoint": false
+                    }
+                ],
+                "disableKeyBasedMetadataWriteAccess": false,
+                "enableFreeTier": true,
+                "enableAnalyticalStorage": false,
+                "analyticalStorageConfiguration": {
+                    "schemaType": "WellDefined"
+                },
+                "databaseAccountOfferType": "Standard",
+                "defaultIdentity": "FirstPartyIdentity",
+                "networkAclBypass": "None",
+                "disableLocalAuth": false,
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session",
+                    "maxIntervalInSeconds": 5,
+                    "maxStalenessPrefix": 100
+                },
+                "locations": [
+                    {
+                        "locationName": "West Europe",
+                        "provisioningState": "Succeeded",
+                        "failoverPriority": 0,
+                        "isZoneRedundant": false
+                    }
+                ],
+                "cors": [],
+                "capabilities": [],
+                "ipRules": [
+                    {
+                        "ipAddressOrRange": "177.142.137.53"
+                    },
+                    {
+                        "ipAddressOrRange": "104.42.195.92"
+                    },
+                    {
+                        "ipAddressOrRange": "40.76.54.131"
+                    },
+                    {
+                        "ipAddressOrRange": "52.176.6.30"
+                    },
+                    {
+                        "ipAddressOrRange": "52.169.50.45"
+                    },
+                    {
+                        "ipAddressOrRange": "52.187.184.26"
+                    },
+                    {
+                        "ipAddressOrRange": "0.0.0.0"
+                    }
+                ],
+                "backupPolicy": {
+                    "type": "Periodic",
+                    "periodicModeProperties": {
+                        "backupIntervalInMinutes": 240,
+                        "backupRetentionIntervalInHours": 8,
+                        "backupStorageRedundancy": "Local"
+                    }
+                },
+                "networkAclBypassResourceIds": [],
+                "diagnosticLogSettings": {
+                    "enableFullTextQuery": "None"
+                },
+                "capacity": {
+                    "totalThroughputLimit": 1000
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[concat(parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), '/Tasks')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "Tasks"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[concat(parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), '/00000000-0000-0000-0000-000000000001')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "roleName": "Cosmos DB Built-in Data Reader",
+                "type": "BuiltInRole",
+                "assignableScopes": [
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+                ],
+                "permissions": [
+                    {
+                        "dataActions": [
+                            "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read"
+                        ],
+                        "notDataActions": []
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[concat(parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), '/00000000-0000-0000-0000-000000000002')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "roleName": "Cosmos DB Built-in Data Contributor",
+                "type": "BuiltInRole",
+                "assignableScopes": [
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+                ],
+                "permissions": [
+                    {
+                        "dataActions": [
+                            "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*"
+                        ],
+                        "notDataActions": []
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/degradationindependencyduration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationindependencyduration",
+                    "DisplayName": "Degradation in dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/degradationinserverresponsetime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationinserverresponsetime",
+                    "DisplayName": "Degradation in server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/digestMailConfiguration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "digestMailConfiguration",
+                    "DisplayName": "Digest Mail Configuration",
+                    "Description": "This rule describes the digest mail preferences",
+                    "HelpUrl": "www.homail.com",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_billingdatavolumedailyspikeextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_billingdatavolumedailyspikeextension",
+                    "DisplayName": "Abnormal rise in daily data volume (preview)",
+                    "Description": "This detection rule automatically analyzes the billing data generated by your application, and can warn you about an unusual increase in your application's billing costs",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/billing-data-volume-daily-spike.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_canaryextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_canaryextension",
+                    "DisplayName": "Canary extension",
+                    "Description": "Canary extension",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_exceptionchangeextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_exceptionchangeextension",
+                    "DisplayName": "Abnormal rise in exception volume (preview)",
+                    "Description": "This detection rule automatically analyzes the exceptions thrown in your application, and can warn you about unusual patterns in your exception telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/abnormal-rise-in-exception-volume.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_memoryleakextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_memoryleakextension",
+                    "DisplayName": "Potential memory leak detected (preview)",
+                    "Description": "This detection rule automatically analyzes the memory consumption of each process in your application, and can warn you about potential memory leaks or increased memory consumption.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/memory-leak.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_securityextensionspackage')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_securityextensionspackage",
+                    "DisplayName": "Potential security issue detected (preview)",
+                    "Description": "This detection rule automatically analyzes the telemetry generated by your application and detects potential security issues.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/application-security-detection-pack.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/extension_traceseveritydetector')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_traceseveritydetector",
+                    "DisplayName": "Degradation in trace severity ratio (preview)",
+                    "Description": "This detection rule automatically analyzes the trace logs emitted from your application, and can warn you about unusual patterns in the severity of your trace telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/degradation-in-trace-severity-ratio.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/longdependencyduration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "longdependencyduration",
+                    "DisplayName": "Long dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/migrationToAlertRulesCompleted')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "migrationToAlertRulesCompleted",
+                    "DisplayName": "Migration To Alert Rules Completed",
+                    "Description": "A configuration that controls the migration state of Smart Detection to Smart Alerts",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": false,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": false,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/slowpageloadtime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowpageloadtime",
+                    "DisplayName": "Slow page load time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_webapptodofirstappdev_name'), '/slowserverresponsetime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowserverresponsetime",
+                    "DisplayName": "Slow server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_firstapp_dev_we_name'), '/snet-firstappdb-dev-we')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.2.0/24",
+                "serviceEndpoints": [
+                    {
+                        "service": "Microsoft.AzureCosmosDB",
+                        "locations": [
+                            "*"
+                        ]
+                    }
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_firstapp_dev_we_name'), '/snet-firstappwebapp-dev-we')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.1.0/24",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('sites_webapptodofirstappdev_name')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_asp_webapptodofirstapp_dev_we_name'))]"
+            ],
+            "kind": "app",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_asp_webapptodofirstapp_dev_we_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": true,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "C2B942E5094E54661E7E6B8E669608DF1204B9BDA7CF7E378521DED781015F6F",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/ftp')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/scm')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/web')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v6.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$webapptodofirstappdev",
+                "scmType": "VSTSRM",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": true
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "managedServiceIdentityId": 4915,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "FtpsOnly",
+                "preWarmedInstanceCount": 0,
+                "functionAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/221661181379905')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author": "Rodrigo Moreirao",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"Deployment\",\"commitId\":\"664c9833c38a5a2c250050994e810834466fc220\",\"buildId\":\"22\",\"buildNumber\":\"20220822.8\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T15:16:21.1161275Z",
+                "end_time": "2022-08-22T15:16:21.1161275Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/406fe3d378d74c8fb5f071433923b32f')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"2343087c129f46f4f9c4323cfdb5cc77c49afddf\",\"buildId\":\"27\",\"buildNumber\":\"20220822.13\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T16:11:32.0124845Z",
+                "end_time": "2022-08-22T16:11:32.6687849Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/5cdbcc3212e942a4b4d28a8c1d75644b')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS_ZIP_DEPLOY",
+                "message": "Created via a push deployment",
+                "start_time": "2022-08-22T15:15:03.1004224Z",
+                "end_time": "2022-08-22T15:15:22.9535024Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/69da2412f1e24925b5d594da5dea1247')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"21bbbf7d3a55443d5f52c0a9b488cc88f6d35a8e\",\"buildId\":\"26\",\"buildNumber\":\"20220822.12\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T16:09:11.9843789Z",
+                "end_time": "2022-08-22T16:09:12.5625089Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/728e68358fc0449486e8eb7f91af851b')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"0ad333290e83a6a173d4f1b8732dffa87c8e4cef\",\"buildId\":\"29\",\"buildNumber\":\"20220822.15\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T16:23:05.0206257Z",
+                "end_time": "2022-08-22T16:23:05.6612427Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/b7f179796da2405ebb3539a83bb17452')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"1b1c2dcf8ed7439d62d0f5afd59461ff169ce8c5\",\"buildId\":\"28\",\"buildNumber\":\"20220822.14\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T16:19:08.0578975Z",
+                "end_time": "2022-08-22T16:19:08.6203948Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/ee20bd3d964141ebb17296996472b1cc')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"48b59172f0641096bed4f5dad4058994ce5588f1\",\"buildId\":\"25\",\"buildNumber\":\"20220822.11\",\"repoProvider\":\"GitHub\",\"repoName\":\"rmoreirao/AzureLearning\",\"collectionUrl\":\"https://dev.azure.com/rmoreiraoms/\",\"teamProject\":\"b5719347-3606-4432-a719-2262b9cddafd\",\"buildProjectUrl\":\"https://dev.azure.com/rmoreiraoms/b5719347-3606-4432-a719-2262b9cddafd\",\"repositoryUrl\":\"https://github.com/rmoreirao/AzureLearning\",\"branch\":\"main\",\"teamProjectName\":\"AzureLearning\",\"slotName\":\"production\"}",
+                "start_time": "2022-08-22T15:43:10.9260759Z",
+                "end_time": "2022-08-22T15:43:11.5510801Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/', parameters('sites_webapptodofirstappdev_name'), '.azurewebsites.net')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ],
+            "properties": {
+                "siteName": "webapptodofirstappdev",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/siteextensions",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/Microsoft.AspNetCore.AzureAppServices.SiteExtension')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T08_41_06_9066651')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T09_41_06_9755830')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T10_41_07_0252883')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T11_41_07_0852708')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T12_41_07_1456142')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T13_41_07_2083498')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T14_41_07_2822608')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T15_41_07_3349391')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T16_41_07_3941761')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T17_41_07_4569767')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T18_41_07_5231981')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T19_41_08_2707043')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T20_41_08_3256877')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T21_41_08_3834504')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T22_41_08_4462353')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-22T23_41_08_5093345')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T00_41_08_5672317')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T01_41_08_6203505')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T02_41_08_6766625')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T03_41_08_7261556')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T04_41_08_7867287')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T05_41_08_8477513')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T06_41_08_9074437')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T07_41_08_9614127')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T08_41_09_0232023')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T09_41_09_0822673')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_webapptodofirstappdev_name'), '/2022-08-23T10_41_09_1510408')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_webapptodofirstappdev_name'))]"
+            ]
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___webapptodofirstappdev_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[resourceId('microsoft.insights/components', parameters('components_webapptodofirstappdev_name'))]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[concat(parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), '/Tasks/Item')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), 'Tasks')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "Item",
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "automatic": true,
+                        "includedPaths": [
+                            {
+                                "path": "/*"
+                            }
+                        ],
+                        "excludedPaths": [
+                            {
+                                "path": "/\"_etag\"/?"
+                            }
+                        ]
+                    },
+                    "partitionKey": {
+                        "paths": [
+                            "/id"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "conflictResolutionPolicy": {
+                        "mode": "LastWriterWins",
+                        "conflictResolutionPath": "/_ts"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings",
+            "apiVersion": "2022-02-15-preview",
+            "name": "[concat(parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), '/Tasks/Item/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), 'Tasks', 'Item')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'), 'Tasks')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_firstapp_dev_we_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "throughput": 400
+                }
+            }
+        }
+    ]
+}
