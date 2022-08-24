@@ -1,7 +1,7 @@
 param location string = 'westeurope'
 param location_suffix string = 'we'
-param environment string = 'dev6'
-param subnetAddressPrefix string = '6'
+param environment string = 'dev3'
+param subnetAddressPrefix string = '3'
 
 var vnetName_var = 'vnet-firstapp-${environment}-${location_suffix}'
 var vnetAdressSpace = '10.${subnetAddressPrefix}.0.0/16'
@@ -185,50 +185,50 @@ resource cosmosDbName_Tasks 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@
   }
 }
 
-resource cosmosDbName_00000000_0000_0000_0000_000000000001 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
-  parent: cosmosDbName
-  name: '00000000-0000-0000-0000-000000000001'
-  properties: {
-    roleName: 'Cosmos DB Built-in Data Reader'
-    type: 'BuiltInRole'
-    assignableScopes: [
-      cosmosDbName.id
-    ]
-    permissions: [
-      {
-        dataActions: [
-          'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
-          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
-          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
-        ]
-        notDataActions: []
-      }
-    ]
-  }
-}
+// resource cosmosDbName_00000000_0000_0000_0000_000000000001 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
+//   parent: cosmosDbName
+//   name: '00000000-0000-0000-0000-000000000001'
+//   properties: {
+//     roleName: 'Cosmos DB Built-in Data Reader'
+//     type: 'BuiltInRole'
+//     assignableScopes: [
+//       cosmosDbName.id
+//     ]
+//     permissions: [
+//       {
+//         dataActions: [
+//           'Microsoft.DocumentDB/databaseAccounts/readMetadata'
+//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
+//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
+//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
+//         ]
+//         notDataActions: []
+//       }
+//     ]
+//   }
+// }
 
-resource cosmosDbName_00000000_0000_0000_0000_000000000002 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
-  parent: cosmosDbName
-  name: '00000000-0000-0000-0000-000000000002'
-  properties: {
-    roleName: 'Cosmos DB Built-in Data Contributor'
-    type: 'BuiltInRole'
-    assignableScopes: [
-      cosmosDbName.id
-    ]
-    permissions: [
-      {
-        dataActions: [
-          'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
-          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
-        ]
-        notDataActions: []
-      }
-    ]
-  }
-}
+// resource cosmosDbName_00000000_0000_0000_0000_000000000002 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
+//   parent: cosmosDbName
+//   name: '00000000-0000-0000-0000-000000000002'
+//   properties: {
+//     roleName: 'Cosmos DB Built-in Data Contributor'
+//     type: 'BuiltInRole'
+//     assignableScopes: [
+//       cosmosDbName.id
+//     ]
+//     permissions: [
+//       {
+//         dataActions: [
+//           'Microsoft.DocumentDB/databaseAccounts/readMetadata'
+//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
+//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
+//         ]
+//         notDataActions: []
+//       }
+//     ]
+//   }
+// }
 
 resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName_var
@@ -302,23 +302,23 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource webAppName_ftp 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
-  parent: webAppName
-  name: 'ftp'
-  location: 'West Europe'
-  properties: {
-    allow: true
-  }
-}
+// resource webAppName_ftp 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+//   parent: webAppName
+//   name: 'ftp'
+//   location: 'West Europe'
+//   properties: {
+//     allow: true
+//   }
+// }
 
-resource webAppName_scm 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
-  parent: webAppName
-  name: 'scm'
-  location: 'West Europe'
-  properties: {
-    allow: true
-  }
-}
+// resource webAppName_scm 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+//   parent: webAppName
+//   name: 'scm'
+//   location: 'West Europe'
+//   properties: {
+//     allow: true
+//   }
+// }
 
 resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: webAppName
@@ -378,10 +378,23 @@ resource webAppName_webAppName_azurewebsites_net 'Microsoft.Web/sites/hostNameBi
   }
 }
 
-resource webAppName_Microsoft_AspNetCore_AzureAppServices_SiteExtension 'Microsoft.Web/sites/siteextensions@2022-03-01' = {
-  parent: webAppName
-  name: 'Microsoft.AspNetCore.AzureAppServices.SiteExtension'
-  location: 'West Europe'
+// resource webAppName_Microsoft_AspNetCore_AzureAppServices_SiteExtension 'Microsoft.Web/sites/siteextensions@2022-03-01' = {
+//   parent: webAppName
+//   name: 'Microsoft.AspNetCore.AzureAppServices.SiteExtension'
+//   location: 'West Europe'
+// }
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: 'AppInsights${webAppName.name}'
+  location: location
+  tags: {
+    'hidden-link:${webAppName.id}': 'Resource'
+    displayName: 'AppInsightsComponent'
+  }
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
 }
 
 output vnetName string = vnetName_var

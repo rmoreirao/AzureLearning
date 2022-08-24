@@ -1,4 +1,4 @@
-# 01 First App Todo - ASP.NET Core app + Cosmos DB 
+# 01 First App Todo - ASP.NET Core app 6 + Cosmos DB 
 
 ## Deploy Infra as a Code - Adjust the Variables and names
 

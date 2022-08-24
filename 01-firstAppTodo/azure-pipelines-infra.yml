@@ -1,4 +1,10 @@
-trigger: none
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - 01-firstAppTodo/infra-as-code.bicep
 
 name: Deploy Bicep files
 

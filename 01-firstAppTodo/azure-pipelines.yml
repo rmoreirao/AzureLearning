@@ -41,6 +41,7 @@ steps:
 
 #Publish it to the Azure App Service
 - task: AzureWebApp@1
+  # This is here because theres an issue with this task: the resource cannot be found
   retryCountOnTaskFailure: 10
   inputs:
     appType: webApp
