@@ -52,7 +52,7 @@ stages:
               resourceGroupName: '$(resourceGroupName)'
               location: '${{parameters.deploymentLocation}}'
               templateLocation: 'Linked artifact'
-              csmFile: './deploy-azure/infra-as-code.bicep'
+              csmFile: '01-firstAppTodo/deploy-azure/infra-as-code.bicep'
               overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location ${{parameters.deploymentLocation}} -location_suffix ${{parameters.deploymentLocationSuffix}}'
               deploymentMode: 'Complete'
               deploymentName: 'DeployPipelineTemplate'
