@@ -241,17 +241,7 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
-  parent: webAppName
-  name: 'appsettings'
-  properties: {
-    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
-  }
-  dependsOn: [
-    appServiceSiteExtension
-  ]
-}
+
 
 resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: webAppName
@@ -301,6 +291,29 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   }
 }
 
+
+
+resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
+  parent: webAppName
+  name: 'appsettings'
+  properties: {
+    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
+  }
+  dependsOn: [
+    appServiceSiteExtension
+  ]
+}
+
+// this is to add app insights to Kudu app, but this is generating some exception
+// resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
+//   parent: webAppName
+//   name: 'Microsoft.ApplicationInsights.AzureWebSites'
+//   dependsOn: [
+//     appInsights
+//   ]
+// }
+
 resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   parent: webAppName
   name: 'logs'
@@ -323,14 +336,6 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
       enabled: true
     }
   }
-}
-
-resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
-  parent: webAppName
-  name: 'Microsoft.ApplicationInsights.AzureWebSites'
-  dependsOn: [
-    appInsights
-  ]
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
