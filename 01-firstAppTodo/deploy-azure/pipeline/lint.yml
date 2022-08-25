@@ -3,6 +3,6 @@ jobs:
   displayName: Lint code
   steps:
     - script: |
-        az bicep build --file deploy/main.bicep
+        az bicep build --file 01-firstAppTodo/deploy-azure/infra-as-code.bicep
       name: LintBicepCode
       displayName: Run Bicep linter
