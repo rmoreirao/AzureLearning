@@ -41,7 +41,7 @@ jobs:
   - task: AzureCLI@2
     inputs:
       azureSubscription: '$(azureServiceConnection)'
-      scriptType: 'ps'
+      scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
 
