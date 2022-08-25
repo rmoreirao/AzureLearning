@@ -36,6 +36,7 @@ stages:
         deploy:
           
           steps:
+          - checkout: self
           - task: AzureCLI@2
             inputs:
               azureSubscription: '${{parameters.serviceConnectionName}}'
