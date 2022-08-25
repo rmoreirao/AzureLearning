@@ -15,7 +15,6 @@ var webAppName_var = 'webapptodofirstapp${environment}${location_suffix}'
 var appServicePlanName_var = 'asp-webapptodofirstapp-${environment}-${location_suffix}'
 var cosmosDbName_var = 'cosmos-firstapp-${environment}-${location_suffix}'
 var appInsightName = 'appi-webapptodofirstapp-${environment}-${location_suffix}'
-var logAnalyticsName = 'la-webapptodofirstapp-${environment}-${location_suffix}'
 
 resource vnetName 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: vnetName_var
@@ -217,7 +216,7 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
     type: 'SystemAssigned'
   }
   dependsOn: [
-    logAnalyticsWorkspace
+    appInsights
   ]
   properties: {
     enabled: true
@@ -277,15 +276,9 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
         description: 'Allow all access'
       }
     ]
-    scmIpSecurityRestrictionsUseMain: false
-    http20Enabled: false
     minTlsVersion: '1.2'
     scmMinTlsVersion: '1.2'
     ftpsState: 'FtpsOnly'
-    preWarmedInstanceCount: 0
-    functionAppScaleLimit: 0
-    functionsRuntimeScaleMonitoringEnabled: false
-    minimumElasticInstanceCount: 0
     azureStorageAccounts: {
     }
   }
@@ -298,11 +291,11 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   name: 'appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
     ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
+    ApplicationInsightsAgent_EXTENSION_VERSION: '~2'
+    XDT_MicrosoftApplicationInsights_Mode: 'default'
   }
-  dependsOn: [
-    appInsights
-  ]
 }
 
 // this is to add app insights to Kudu app, but this is generating some exception
@@ -340,28 +333,11 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightName
-  location: location
-  kind: 'string'
+  location: location 
+  kind: 'web'
   properties: {
     Application_Type: 'web'
-    WorkspaceResourceId: logAnalyticsWorkspace.id
-  }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
-  name: logAnalyticsName
-  location: location
-  
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-    retentionInDays: 120
-    features: {
-      searchVersion: 1
-      legacy: 0
-      enableLogAccessUsingOnlyResourcePermissions: true
-    }
+    Request_Source: 'rest'
   }
 }
 
