@@ -201,20 +201,12 @@ resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
   kind: 'app'
   properties: {
-    perSiteScaling: false
-    elasticScaleEnabled: false
     maximumElasticWorkerCount: 1
     isSpot: false
-    reserved: false
-    isXenon: false
-    hyperV: false
     targetWorkerCount: 0
     targetWorkerSizeId: 0
     zoneRedundant: false
   }
-  dependsOn: [
-    logAnalyticsWorkspace
-  ]
 }
 
 resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
@@ -231,14 +223,7 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
     enabled: true
     
     serverFarmId: appServicePlanName.id
-    vnetRouteAllEnabled: false
     siteConfig: {
-      appSettings: [
-        {
-          name: 'ConnectionString'
-          value: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
-        }
-      ]
       numberOfWorkers: 1
       acrUseManagedIdentityCreds: false
       alwaysOn: true
@@ -261,6 +246,7 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   name: 'appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
   }
   dependsOn: [
     appServiceSiteExtension
@@ -311,6 +297,30 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
     functionsRuntimeScaleMonitoringEnabled: false
     minimumElasticInstanceCount: 0
     azureStorageAccounts: {
+    }
+  }
+}
+
+resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
+  parent: webAppName
+  name: 'logs'
+  properties: {
+    applicationLogs: {
+      fileSystem: {
+        level: 'Warning'
+      }
+    }
+    httpLogs: {
+      fileSystem: {
+        retentionInMb: 40
+        enabled: true
+      }
+    }
+    failedRequestsTracing: {
+      enabled: true
+    }
+    detailedErrorMessages: {
+      enabled: true
     }
   }
 }

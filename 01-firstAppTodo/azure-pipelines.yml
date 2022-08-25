@@ -17,6 +17,10 @@ trigger:
     include:
       - main
 
+variables:
+  # Set it to true if you want VERBOSE execution
+  System.Debug: false
+
 pool:
   vmImage: ubuntu-latest
 
