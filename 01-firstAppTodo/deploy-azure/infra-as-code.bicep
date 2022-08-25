@@ -302,7 +302,7 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   }
   dependsOn: [
     appInsights
-  ]bf
+  ]
 }
 
 // this is to add app insights to Kudu app, but this is generating some exception
