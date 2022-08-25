@@ -25,10 +25,10 @@ stages:
 # Lint the Bicep file.
 - stage: Lint
   jobs: 
-  - template: 01-firstAppTodo/deploy-azure/pipeline/lint.yml
+  - template: deploy-azure/pipeline/lint.yml
 
 # Deploy to the Dev environment.
-- template: 01-firstAppTodo/deploy-azure/pipeline/azure-pipelines-infra.yml
+- template: deploy-azure/pipeline/azure-pipelines-infra.yml
   parameters:
     environmentType: Dev
     environmentName: dev${{parameters.devEnvironmentNumber}}
@@ -38,7 +38,7 @@ stages:
     serviceConnectionName : ${{parameters.serviceConnectionName}}
 
 # Deploy to the Prod environment.
-- template: 01-firstAppTodo/deploy-azure/pipeline/azure-pipelines-infra.yml
+- template: deploy-azure/pipeline/azure-pipelines-infra.yml
   parameters:
     environmentType: Prod
     environmentName: prod
