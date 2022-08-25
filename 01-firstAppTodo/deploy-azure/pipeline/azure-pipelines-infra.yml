@@ -54,6 +54,6 @@ jobs:
       location: '$(location)'
       templateLocation: 'Linked artifact'
       csmFile: '$(templateFile)'
-      overrideParameters: ' -environment dev3 -subnetAddressPrefix 3 -location $(location) -location_suffix we'
+      overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
       deploymentMode: 'Complete'
       deploymentName: 'DeployPipelineTemplate'
