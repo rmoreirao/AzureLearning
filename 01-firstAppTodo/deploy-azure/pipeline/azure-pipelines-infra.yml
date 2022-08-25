@@ -48,65 +48,65 @@ variables:
 #       steps:
 stages:
 - stage: Deploy_Infra_to_${{parameters.environmentName}}
-    displayName: Deploy Infra to (${{parameters.environmentName}})
-    jobs:
-    - job: DeployBicepAzure
-      displayName: Deploy Infra Bicep to Azure
+  displayName: Deploy Infra to (${{parameters.environmentName}} environment)
+  jobs:
+  - job: DeployBicepAzure
+    displayName: Deploy Infra Bicep to Azure
 
-      pool:
-        vmImage: $(vmImageName)
+    pool:
+      vmImage: $(vmImageName)
 
-      steps:
-      - task: AzureCLI@2
-        inputs:
-          azureSubscription: '$(azureServiceConnection)'
-          scriptType: 'bash'
-          scriptLocation: 'inlineScript'
-          inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
 
-      - task: AzureResourceManagerTemplateDeployment@3
-        inputs:
-          deploymentScope: 'Resource Group'
-          azureResourceManagerConnection: '$(azureServiceConnection)'
-          action: 'Create Or Update Resource Group'
-          resourceGroupName: '$(resourceGroupName)'
-          location: '$(location)'
-          templateLocation: 'Linked artifact'
-          csmFile: '$(templateFile)'
-          overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
-          deploymentMode: 'Complete'
-          deploymentName: 'DeployPipelineTemplate'
+    - task: AzureResourceManagerTemplateDeployment@3
+      inputs:
+        deploymentScope: 'Resource Group'
+        azureResourceManagerConnection: '$(azureServiceConnection)'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: '$(resourceGroupName)'
+        location: '$(location)'
+        templateLocation: 'Linked artifact'
+        csmFile: '$(templateFile)'
+        overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
+        deploymentMode: 'Complete'
+        deploymentName: 'DeployPipelineTemplate'
 
 - stage: Deploy_WebApp_to_${{parameters.environmentName}}
-    displayName: Deploy Web App to ${{parameters.environmentName}} environment
-    jobs:
-    - job: DeployWebApp
-      displayName: Deploy Web App
+  displayName: Deploy Web App to ${{parameters.environmentName}} environment
+  jobs:
+  - job: DeployWebApp
+    displayName: Deploy Web App
 
-      pool:
-        vmImage: $(vmImageName)
+    pool:
+      vmImage: $(vmImageName)
 
-      # Build and deploy the app for .NET 6 framework
-      steps:
-      - task: UseDotNet@2
-        inputs:
-          version: $(dotNetVersion)
-          includePreviewVersions: true
-      - script: dotnet build --configuration $(buildConfiguration)
-        displayName: 'Build .NET 6 Application'
-        workingDirectory: '01-firstAppTodo/'
+    # Build and deploy the app for .NET 6 framework
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        version: $(dotNetVersion)
+        includePreviewVersions: true
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'Build .NET 6 Application'
+      workingDirectory: '01-firstAppTodo/'
 
-      - task: DotNetCoreCLI@2
-        inputs:
-          command: 'publish'
-          publishWebProjects: true
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
 
-      #Publish it to the Azure App Service
-      - task: AzureWebApp@1
-        # This is here because theres an issue with this task: the resource cannot be found
-        retryCountOnTaskFailure: 10
-        inputs:
-          appType: webApp
-          azureSubscription: $(azureServiceConnection) #this is the name of the SPN
-          appName: $(azureAppServiceName) #App Service's unique name
-          package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
+    #Publish it to the Azure App Service
+    - task: AzureWebApp@1
+      # This is here because theres an issue with this task: the resource cannot be found
+      retryCountOnTaskFailure: 10
+      inputs:
+        appType: webApp
+        azureSubscription: $(azureServiceConnection) #this is the name of the SPN
+        appName: $(azureAppServiceName) #App Service's unique name
+        package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
