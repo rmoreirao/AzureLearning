@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "195700647355019131"
+      "templateHash": "12245651965652862050"
     }
   },
   "parameters": {
@@ -19,11 +19,11 @@
     },
     "environment": {
       "type": "string",
-      "defaultValue": "dev3"
+      "defaultValue": "dev1"
     },
     "subnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "3"
+      "defaultValue": "1"
     }
   },
   "variables": {
@@ -265,6 +265,7 @@
         "keyVaultReferenceIdentity": "SystemAssigned"
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]",
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName_var'))]"
       ]
     },
@@ -293,9 +294,14 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('webAppName_var'), 'appsettings')]",
       "properties": {
-        "ConnectionString": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var')), '2019-12-12').connectionStrings[0].connectionString]"
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]",
+        "APPLICATIONINSIGHTS_CONNECTION_STRING": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).ConnectionString]",
+        "ConnectionString": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var')), '2019-12-12').connectionStrings[0].connectionString]",
+        "ApplicationInsightsAgent_EXTENSION_VERSION": "~2",
+        "XDT_MicrosoftApplicationInsights_Mode": "default"
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]",
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var'))]",
         "[resourceId('Microsoft.Web/sites', variables('webAppName_var'))]"
       ]
@@ -326,6 +332,17 @@
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('webAppName_var'))]"
       ]
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('appInsightName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Request_Source": "rest"
+      }
     }
   ],
   "outputs": {

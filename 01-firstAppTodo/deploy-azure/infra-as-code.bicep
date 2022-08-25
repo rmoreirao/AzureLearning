@@ -2,8 +2,8 @@ param location string = 'westeurope'
 param location_suffix string = 'we'
 // For simplicity, we receive the env name as a parameter and we do not apply any special sizing with it
 // Ideally Prod would be more powerful than Dev, so a parameters file would be a better solution
-param environment string = 'dev1'
-param subnetAddressPrefix string = '1'
+param environment string = 'dev3'
+param subnetAddressPrefix string = '3'
 
 var vnetName_var = 'vnet-firstapp-${environment}-${location_suffix}'
 var vnetAdressSpace = '10.${subnetAddressPrefix}.0.0/16'
@@ -199,6 +199,13 @@ resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
     capacity: 1
   }
   kind: 'app'
+  properties: {
+    maximumElasticWorkerCount: 1
+    isSpot: false
+    targetWorkerCount: 0
+    targetWorkerSizeId: 0
+    zoneRedundant: false
+  }
 }
 
 resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
@@ -219,6 +226,9 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
       numberOfWorkers: 1
       acrUseManagedIdentityCreds: false
       alwaysOn: true
+      http20Enabled: false
+      functionAppScaleLimit: 0
+      minimumElasticInstanceCount: 0
     }
     clientCertEnabled: false
     clientCertMode: 'Required'
@@ -239,10 +249,33 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   properties: {
     numberOfWorkers: 1
     netFrameworkVersion: 'v6.0'
+    httpLoggingEnabled: false
+    acrUseManagedIdentityCreds: false
+    detailedErrorLoggingEnabled: false
     use32BitWorkerProcess: true
     alwaysOn: true
     managedPipelineMode: 'Integrated'
-
+    autoHealEnabled: false
+    vnetRouteAllEnabled: false
+    vnetPrivatePortsCount: 0
+    ipSecurityRestrictions: [
+      {
+        ipAddress: 'Any'
+        action: 'Allow'
+        priority: 1
+        name: 'Allow all'
+        description: 'Allow all access'
+      }
+    ]
+    scmIpSecurityRestrictions: [
+      {
+        ipAddress: 'Any'
+        action: 'Allow'
+        priority: 1
+        name: 'Allow all'
+        description: 'Allow all access'
+      }
+    ]
     minTlsVersion: '1.2'
     scmMinTlsVersion: '1.2'
     ftpsState: 'FtpsOnly'
