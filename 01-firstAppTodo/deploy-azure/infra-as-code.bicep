@@ -2,8 +2,8 @@ param location string = 'westeurope'
 param location_suffix string = 'we'
 // For simplicity, we receive the env name as a parameter and we do not apply any special sizing with it
 // Ideally Prod would be more powerful than Dev, so a parameters file would be a better solution
-param environment string = 'dev3'
-param subnetAddressPrefix string = '3'
+param environment string = 'dev1'
+param subnetAddressPrefix string = '1'
 
 var vnetName_var = 'vnet-firstapp-${environment}-${location_suffix}'
 var vnetAdressSpace = '10.${subnetAddressPrefix}.0.0/16'
@@ -199,13 +199,6 @@ resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
     capacity: 1
   }
   kind: 'app'
-  properties: {
-    maximumElasticWorkerCount: 1
-    isSpot: false
-    targetWorkerCount: 0
-    targetWorkerSizeId: 0
-    zoneRedundant: false
-  }
 }
 
 resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
@@ -215,9 +208,9 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   identity: {
     type: 'SystemAssigned'
   }
-  // dependsOn: [
-  //   appInsights
-  // ]
+  dependsOn: [
+    appInsights
+  ]
   properties: {
     enabled: true
     
@@ -226,9 +219,6 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
       numberOfWorkers: 1
       acrUseManagedIdentityCreds: false
       alwaysOn: true
-      http20Enabled: false
-      functionAppScaleLimit: 0
-      minimumElasticInstanceCount: 0
     }
     clientCertEnabled: false
     clientCertMode: 'Required'
@@ -249,33 +239,10 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   properties: {
     numberOfWorkers: 1
     netFrameworkVersion: 'v6.0'
-    httpLoggingEnabled: false
-    acrUseManagedIdentityCreds: false
-    detailedErrorLoggingEnabled: false
     use32BitWorkerProcess: true
     alwaysOn: true
     managedPipelineMode: 'Integrated'
-    autoHealEnabled: false
-    vnetRouteAllEnabled: false
-    vnetPrivatePortsCount: 0
-    ipSecurityRestrictions: [
-      {
-        ipAddress: 'Any'
-        action: 'Allow'
-        priority: 1
-        name: 'Allow all'
-        description: 'Allow all access'
-      }
-    ]
-    scmIpSecurityRestrictions: [
-      {
-        ipAddress: 'Any'
-        action: 'Allow'
-        priority: 1
-        name: 'Allow all'
-        description: 'Allow all access'
-      }
-    ]
+
     minTlsVersion: '1.2'
     scmMinTlsVersion: '1.2'
     ftpsState: 'FtpsOnly'
@@ -290,11 +257,11 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   parent: webAppName
   name: 'appsettings'
   properties: {
-    // APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
+    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
     ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
-    // ApplicationInsightsAgent_EXTENSION_VERSION: '~2'
-    // XDT_MicrosoftApplicationInsights_Mode: 'default'
+    ApplicationInsightsAgent_EXTENSION_VERSION: '~2'
+    XDT_MicrosoftApplicationInsights_Mode: 'default'
   }
 }
 
@@ -331,15 +298,15 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   }
 }
 
-// resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-//   name: appInsightName
-//   location: location 
-//   kind: 'web'
-//   properties: {
-//     Application_Type: 'web'
-//     Request_Source: 'rest'
-//   }
-// }
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightName
+  location: location 
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Request_Source: 'rest'
+  }
+}
 
 output vnetName string = vnetName_var
 output vnetAdressSpace string = vnetAdressSpace

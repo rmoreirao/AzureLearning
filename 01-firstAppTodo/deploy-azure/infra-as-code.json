@@ -1,0 +1,369 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.9.1.41621",
+      "templateHash": "195700647355019131"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "location_suffix": {
+      "type": "string",
+      "defaultValue": "we"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev3"
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "3"
+    }
+  },
+  "variables": {
+    "vnetName_var": "[format('vnet-firstapp-{0}-{1}', parameters('environment'), parameters('location_suffix'))]",
+    "vnetAdressSpace": "[format('10.{0}.0.0/16', parameters('subnetAddressPrefix'))]",
+    "subnetWebAppName": "[format('snet-firstappwebapp-{0}-{1}', parameters('environment'), parameters('location_suffix'))]",
+    "subnetWebAppAdressSpace": "[format('10.{0}.1.0/24', parameters('subnetAddressPrefix'))]",
+    "subnetCosmosDBName": "[format('snet-firstappdb-{0}-{1}', parameters('environment'), parameters('location_suffix'))]",
+    "subnetCosmosDBAdressSpace": "[format('10.{0}.2.0/24', parameters('subnetAddressPrefix'))]",
+    "webAppName_var": "[format('webapptodofirstapp{0}{1}', parameters('environment'), parameters('location_suffix'))]",
+    "appServicePlanName_var": "[format('asp-webapptodofirstapp-{0}-{1}', parameters('environment'), parameters('location_suffix'))]",
+    "cosmosDbName_var": "[format('cosmos-firstapp-{0}-{1}', parameters('environment'), parameters('location_suffix'))]",
+    "appInsightName": "[format('appi-webapptodofirstapp-{0}-{1}', parameters('environment'), parameters('location_suffix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('vnetName_var')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAdressSpace')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetCosmosDBName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetCosmosDBAdressSpace')]",
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.AzureCosmosDB",
+                  "locations": [
+                    "*"
+                  ]
+                }
+              ],
+              "delegations": [],
+              "privateEndpointNetworkPolicies": "Disabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+          },
+          {
+            "name": "[variables('subnetWebAppName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetWebAppAdressSpace')]",
+              "serviceEndpoints": [],
+              "delegations": [],
+              "privateEndpointNetworkPolicies": "Disabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+          }
+        ],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-11-01",
+      "name": "[format('{0}/{1}', variables('vnetName_var'), variables('subnetCosmosDBName'))]",
+      "properties": {
+        "addressPrefix": "[variables('subnetCosmosDBAdressSpace')]",
+        "serviceEndpoints": [
+          {
+            "service": "Microsoft.AzureCosmosDB",
+            "locations": [
+              "*"
+            ]
+          }
+        ],
+        "delegations": [],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-11-01",
+      "name": "[format('{0}/{1}', variables('vnetName_var'), variables('subnetWebAppName'))]",
+      "properties": {
+        "addressPrefix": "[variables('subnetWebAppAdressSpace')]",
+        "serviceEndpoints": [],
+        "delegations": [],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2022-02-15-preview",
+      "name": "[variables('cosmosDbName_var')]",
+      "location": "West Europe",
+      "tags": {
+        "defaultExperience": "Core (SQL)",
+        "hidden-cosmos-mmspecial": ""
+      },
+      "kind": "GlobalDocumentDB",
+      "identity": {
+        "type": "None"
+      },
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": true,
+        "virtualNetworkRules": [
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName_var'), variables('subnetCosmosDBName'))]",
+            "ignoreMissingVNetServiceEndpoint": false
+          }
+        ],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "enableFreeTier": false,
+        "enableAnalyticalStorage": false,
+        "analyticalStorageConfiguration": {
+          "schemaType": "WellDefined"
+        },
+        "databaseAccountOfferType": "Standard",
+        "defaultIdentity": "FirstPartyIdentity",
+        "networkAclBypass": "None",
+        "disableLocalAuth": false,
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session",
+          "maxIntervalInSeconds": 5,
+          "maxStalenessPrefix": 100
+        },
+        "locations": [
+          {
+            "locationName": "West Europe",
+            "provisioningState": "Succeeded",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ],
+        "cors": [],
+        "capabilities": [],
+        "ipRules": [
+          {
+            "ipAddressOrRange": "177.142.137.53"
+          },
+          {
+            "ipAddressOrRange": "104.42.195.92"
+          },
+          {
+            "ipAddressOrRange": "40.76.54.131"
+          },
+          {
+            "ipAddressOrRange": "52.176.6.30"
+          },
+          {
+            "ipAddressOrRange": "52.169.50.45"
+          },
+          {
+            "ipAddressOrRange": "52.187.184.26"
+          },
+          {
+            "ipAddressOrRange": "0.0.0.0"
+          }
+        ],
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8,
+            "backupStorageRedundancy": "Local"
+          }
+        },
+        "networkAclBypassResourceIds": [],
+        "diagnosticLogSettings": {
+          "enableFullTextQuery": "None"
+        },
+        "capacity": {
+          "totalThroughputLimit": 1000
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName_var'), variables('subnetCosmosDBName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2022-02-15-preview",
+      "name": "[format('{0}/{1}', variables('cosmosDbName_var'), 'Tasks')]",
+      "properties": {
+        "resource": {
+          "id": "Tasks"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[variables('appServicePlanName_var')]",
+      "location": "West Europe",
+      "sku": {
+        "name": "S1",
+        "tier": "Standard",
+        "size": "S1",
+        "family": "S",
+        "capacity": 1
+      },
+      "kind": "app"
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[variables('webAppName_var')]",
+      "location": "West Europe",
+      "kind": "app",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName_var'))]",
+        "siteConfig": {
+          "numberOfWorkers": 1,
+          "acrUseManagedIdentityCreds": false,
+          "alwaysOn": true
+        },
+        "clientCertEnabled": false,
+        "clientCertMode": "Required",
+        "hostNamesDisabled": false,
+        "httpsOnly": true,
+        "redundancyMode": "None",
+        "storageAccountRequired": false,
+        "keyVaultReferenceIdentity": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', variables('webAppName_var'), 'web')]",
+      "location": "West Europe",
+      "properties": {
+        "numberOfWorkers": 1,
+        "netFrameworkVersion": "v6.0",
+        "use32BitWorkerProcess": true,
+        "alwaysOn": true,
+        "managedPipelineMode": "Integrated",
+        "minTlsVersion": "1.2",
+        "scmMinTlsVersion": "1.2",
+        "ftpsState": "FtpsOnly",
+        "azureStorageAccounts": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('webAppName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', variables('webAppName_var'), 'appsettings')]",
+      "properties": {
+        "ConnectionString": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var')), '2019-12-12').connectionStrings[0].connectionString]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbName_var'))]",
+        "[resourceId('Microsoft.Web/sites', variables('webAppName_var'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', variables('webAppName_var'), 'logs')]",
+      "properties": {
+        "applicationLogs": {
+          "fileSystem": {
+            "level": "Warning"
+          }
+        },
+        "httpLogs": {
+          "fileSystem": {
+            "retentionInMb": 40,
+            "enabled": true
+          }
+        },
+        "failedRequestsTracing": {
+          "enabled": true
+        },
+        "detailedErrorMessages": {
+          "enabled": true
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('webAppName_var'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "vnetName": {
+      "type": "string",
+      "value": "[variables('vnetName_var')]"
+    },
+    "vnetAdressSpace": {
+      "type": "string",
+      "value": "[variables('vnetAdressSpace')]"
+    },
+    "subnetWebAppName": {
+      "type": "string",
+      "value": "[variables('subnetWebAppName')]"
+    },
+    "subnetWebAppAdressSpace": {
+      "type": "string",
+      "value": "[variables('subnetWebAppAdressSpace')]"
+    },
+    "subnetCosmosDBName": {
+      "type": "string",
+      "value": "[variables('subnetCosmosDBName')]"
+    },
+    "subnetCosmosDBAdressSpace": {
+      "type": "string",
+      "value": "[variables('subnetCosmosDBAdressSpace')]"
+    },
+    "webAppName": {
+      "type": "string",
+      "value": "[variables('webAppName_var')]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "value": "[variables('appServicePlanName_var')]"
+    },
+    "cosmosDbName": {
+      "type": "string",
+      "value": "[variables('cosmosDbName_var')]"
+    }
+  }
+}
