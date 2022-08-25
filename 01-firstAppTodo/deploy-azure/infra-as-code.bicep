@@ -215,9 +215,9 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   identity: {
     type: 'SystemAssigned'
   }
-  dependsOn: [
-    appInsights
-  ]
+  // dependsOn: [
+  //   appInsights
+  // ]
   properties: {
     enabled: true
     
@@ -290,11 +290,11 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   parent: webAppName
   name: 'appsettings'
   properties: {
-    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
+    // APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
     ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
-    ApplicationInsightsAgent_EXTENSION_VERSION: '~2'
-    XDT_MicrosoftApplicationInsights_Mode: 'default'
+    // ApplicationInsightsAgent_EXTENSION_VERSION: '~2'
+    // XDT_MicrosoftApplicationInsights_Mode: 'default'
   }
 }
 
@@ -331,15 +331,15 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   }
 }
 
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: appInsightName
-  location: location 
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    Request_Source: 'rest'
-  }
-}
+// resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+//   name: appInsightName
+//   location: location 
+//   kind: 'web'
+//   properties: {
+//     Application_Type: 'web'
+//     Request_Source: 'rest'
+//   }
+// }
 
 output vnetName string = vnetName_var
 output vnetAdressSpace string = vnetAdressSpace
