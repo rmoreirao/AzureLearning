@@ -38,7 +38,13 @@ jobs:
     vmImage: $(vmImageName)
 
   steps:
-  - powershell: New-AzResourceGroup -Name $(resourceGroupName) -Location $(location)
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: '$(azureServiceConnection)'
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
+
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
