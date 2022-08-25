@@ -1,0 +1,48 @@
+parameters:
+  - name: devEnvironmentNumber
+    type: string
+    default: 1
+  - name: deploymentLocation
+    type: string
+    default: westeurope
+  - name: deploymentLocationSuffix
+    type: string
+    default: we
+  - name: serviceConnectionName
+    type: string
+    default: 'Azure Personal'
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+
+# Lint the Bicep file.
+- stage: Lint
+  jobs: 
+  - template: 01-firstAppTodo/deploy-azure/pipeline/lint.yml
+
+# Deploy to the Dev environment.
+- template: 01-firstAppTodo/deploy-azure/pipeline/azure-pipelines-infra.yml
+  parameters:
+    environmentType: Dev
+    environmentName: dev${{parameters.devEnvironmentNumber}}
+    subnetAddressPrefix: ${{parameters.devEnvironmentNumber}}
+    deploymentLocation: ${{parameters.deploymentLocation}}
+    deploymentLocationSuffix: ${{parameters.deploymentLocationSuffix}}
+    serviceConnectionName : ${{parameters.serviceConnectionName}}
+
+# Deploy to the Prod environment.
+- template: 01-firstAppTodo/deploy-azure/pipeline/azure-pipelines-infra.yml
+  parameters:
+    environmentType: Prod
+    environmentName: prod
+    subnetAddressPrefix: 99
+    deploymentLocation: ${{parameters.deploymentLocation}}
+    deploymentLocationSuffix: ${{parameters.deploymentLocationSuffix}}
+    serviceConnectionName : ${{parameters.serviceConnectionName}}

@@ -1,4 +1,9 @@
 parameters:
+# This parameter should reflect the same name as registered in Azure DevOps
+# Currently, my solution has 2 envs type: Dev and Prod
+- name: environmentType
+  type: string
+  default: Dev
 - name: environmentName
   type: string
   default: dev1
@@ -15,14 +20,6 @@ parameters:
   type: string
   default: 'Azure Personal'
 
-trigger:
-  branches:
-    include:
-    - main
-  # paths:
-  #   include:
-  #   - 01-firstAppTodo/infra-as-code.bicep
-
 variables:
   vmImageName: 'ubuntu-latest'
   buildConfiguration: 'Release'
@@ -36,77 +33,65 @@ variables:
   # from docs, it seems we can use deploymentOutputs parameter from AzureResourceManagerTemplateDeployment
   azureAppServiceName: 'webapptodofirstapp${{parameters.environmentName}}${{parameters.deploymentLocationSuffix}}'
 
-# - stage: Validate_Bicep_${{parameters.environmentName}}
-#     displayName: Validate Bicep file for ${{parameters.environmentName}} environment
-#     jobs:
-#     - job: DeployBicepAzure
-#       displayName: Deploy Infra Bicep to Azure
-
-#       pool:
-#         vmImage: $(vmImageName)
-
-#       steps:
 stages:
-- stage: Deploy_Infra_to_${{parameters.environmentName}}
-  displayName: Deploy Infra to (${{parameters.environmentName}} environment)
+- stage: Deploy_${{parameters.environmentName}}
+  displayName: Deploy to (${{parameters.environmentName}} environment)
   jobs:
-  - job: DeployBicepAzure
-    displayName: Deploy Infra Bicep to Azure
-
+  - deployment: DeployWebsite
     pool:
-      vmImage: $(vmImageName)
+        vmImage: $(vmImageName)
+    displayName: Deploy website
+    environment: ${{parameters.environmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
 
-    steps:
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: '$(azureServiceConnection)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
+          - task: AzureResourceManagerTemplateDeployment@3
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: '$(azureServiceConnection)'
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: '$(resourceGroupName)'
+              location: '$(location)'
+              templateLocation: 'Linked artifact'
+              csmFile: '$(templateFile)'
+              overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
+              deploymentMode: 'Complete'
+              deploymentName: 'DeployPipelineTemplate'
+          - task: UseDotNet@2
+            inputs:
+              version: $(dotNetVersion)
+              includePreviewVersions: true
+          - script: dotnet build --configuration $(buildConfiguration)
+            displayName: 'Build .NET 6 Application'
+            workingDirectory: '01-firstAppTodo/'
 
-    - task: AzureResourceManagerTemplateDeployment@3
-      inputs:
-        deploymentScope: 'Resource Group'
-        azureResourceManagerConnection: '$(azureServiceConnection)'
-        action: 'Create Or Update Resource Group'
-        resourceGroupName: '$(resourceGroupName)'
-        location: '$(location)'
-        templateLocation: 'Linked artifact'
-        csmFile: '$(templateFile)'
-        overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
-        deploymentMode: 'Complete'
-        deploymentName: 'DeployPipelineTemplate'
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
 
-- stage: Deploy_WebApp_to_${{parameters.environmentName}}
-  displayName: Deploy Web App to ${{parameters.environmentName}} environment
+          #Publish it to the Azure App Service
+          - task: AzureWebApp@1
+            # This is here because theres an issue with this task: the resource cannot be found
+            retryCountOnTaskFailure: 10
+            inputs:
+              appType: webApp
+              azureSubscription: $(azureServiceConnection) #this is the name of the SPN
+              appName: $(azureAppServiceName) #App Service's unique name
+              package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
+
+- stage: SmokeTest_${{parameters.environmentName}}
+  displayName: Smoke Test (${{parameters.environmentName}} Environment)
   jobs:
-  - job: DeployWebApp
-    displayName: Deploy Web App
-
-    pool:
-      vmImage: $(vmImageName)
-
-    # Build and deploy the app for .NET 6 framework
+  - job: SmokeTest
+    displayName: Smoke test
     steps:
-    - task: UseDotNet@2
-      inputs:
-        version: $(dotNetVersion)
-        includePreviewVersions: true
-    - script: dotnet build --configuration $(buildConfiguration)
-      displayName: 'Build .NET 6 Application'
-      workingDirectory: '01-firstAppTodo/'
-
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-
-    #Publish it to the Azure App Service
-    - task: AzureWebApp@1
-      # This is here because theres an issue with this task: the resource cannot be found
-      retryCountOnTaskFailure: 10
-      inputs:
-        appType: webApp
-        azureSubscription: $(azureServiceConnection) #this is the name of the SPN
-        appName: $(azureAppServiceName) #App Service's unique name
-        package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
+      - script: echo Smoke test should be implemented here!
