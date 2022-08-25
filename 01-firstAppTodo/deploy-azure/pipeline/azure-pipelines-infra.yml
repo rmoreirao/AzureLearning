@@ -23,6 +23,8 @@ parameters:
 stages:
 - stage: Deploy_${{parameters.environmentName}}
   displayName: Deploy to (${{parameters.environmentName}} environment)
+  variables:
+    resourceGroupName: 'rg-firstapp-${{parameters.environmentName}}-${{parameters.deploymentLocationSuffix}}'
   jobs:
   - deployment: DeployWebsite
     pool:
@@ -32,8 +34,7 @@ stages:
     strategy:
       runOnce:
         deploy:
-          variables:
-            resourceGroupName: 'rg-firstapp-${{parameters.environmentName}}-${{parameters.deploymentLocationSuffix}}'
+          
           steps:
           - task: AzureCLI@2
             inputs:
