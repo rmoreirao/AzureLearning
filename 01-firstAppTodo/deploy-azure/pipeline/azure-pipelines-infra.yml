@@ -46,7 +46,7 @@ variables:
 #         vmImage: $(vmImageName)
 
 #       steps:
-
+stages:
 - stage: Deploy_Infra_to_${{parameters.environmentName}}
     displayName: Deploy Infra to ${{parameters.environmentName}} environment
     jobs:
