@@ -1,0 +1,53 @@
+parameters:
+- name: environmentName
+  type: string
+  default: dev1
+- name: subnetAddressPrefix
+  type: string
+  default: 1
+- name: deploymentLocation
+  type: string
+  default: westeurope
+- name: deploymentLocationSuffix
+  type: string
+  default: we
+- name: serviceConnectionName
+  type: string
+  default: 'Azure Personal'
+
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - 01-firstAppTodo/infra-as-code.bicep
+
+variables:
+  vmImageName: 'ubuntu-latest'
+  azureServiceConnection: ${{parameters.serviceConnectionName}}
+  resourceGroupName: 'rg-firstapp-${{parameters.environmentName}}-${{parameters.deploymentLocationSuffix}}'
+  location: ${{parameters.deploymentLocation}}
+  templateFile: './01-firstAppTodo/deploy-azure/infra-as-code.bicep'
+
+jobs:
+- job: DeployBicepAzure
+  displayName: Deploy Bicep Azure
+
+  pool:
+    vmImage: $(vmImageName)
+
+  steps:
+  - powershell: New-AzResourceGroup -Name $(resourceGroupName) -Location $(location)
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: '$(azureServiceConnection)'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(resourceGroupName)'
+      location: '$(location)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(templateFile)'
+      overrideParameters: ' -environment dev3 -subnetAddressPrefix 3 -location $(location) -location_suffix we'
+      deploymentMode: 'Complete'
+      deploymentName: 'DeployPipelineTemplate'

@@ -1,5 +1,7 @@
 param location string = 'westeurope'
 param location_suffix string = 'we'
+// For simplicity, we receive the env name as a parameter and we do not apply any special sizing with it
+// Ideally Prod would be more powerful than Dev, so a parameters file would be a better solution
 param environment string = 'dev3'
 param subnetAddressPrefix string = '3'
 
