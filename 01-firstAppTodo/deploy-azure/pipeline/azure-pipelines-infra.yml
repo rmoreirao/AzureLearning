@@ -48,7 +48,7 @@ variables:
 #       steps:
 stages:
 - stage: Deploy_Infra_to_${{parameters.environmentName}}
-    displayName: Deploy Infra to ${{parameters.environmentName}} environment
+    displayName: Deploy Infra to (${{parameters.environmentName}})
     jobs:
     - job: DeployBicepAzure
       displayName: Deploy Infra Bicep to Azure
