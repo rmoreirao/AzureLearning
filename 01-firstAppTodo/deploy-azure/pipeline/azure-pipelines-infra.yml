@@ -36,16 +36,16 @@ variables:
   # from docs, it seems we can use deploymentOutputs parameter from AzureResourceManagerTemplateDeployment
   azureAppServiceName: 'webapptodofirstapp${{parameters.environmentName}}${{parameters.deploymentLocationSuffix}}'
 
-- stage: Validate_Bicep_${{parameters.environmentName}}
-    displayName: Validate Bicep file for ${{parameters.environmentName}} environment
-    jobs:
-    - job: DeployBicepAzure
-      displayName: Deploy Infra Bicep to Azure
+# - stage: Validate_Bicep_${{parameters.environmentName}}
+#     displayName: Validate Bicep file for ${{parameters.environmentName}} environment
+#     jobs:
+#     - job: DeployBicepAzure
+#       displayName: Deploy Infra Bicep to Azure
 
-      pool:
-        vmImage: $(vmImageName)
+#       pool:
+#         vmImage: $(vmImageName)
 
-      steps:
+#       steps:
 
 - stage: Deploy_Infra_to_${{parameters.environmentName}}
     displayName: Deploy Infra to ${{parameters.environmentName}} environment
