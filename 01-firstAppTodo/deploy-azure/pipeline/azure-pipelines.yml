@@ -18,7 +18,7 @@ variables:
   azureSPNName: 'Azure Personal' #get it from your AzureDevOps portal
   azureAppServiceName: 'webapptodofirstappdev3we' #get it from your Azure portal
 
-# Build the app for .NET 6 framework
+# Build and deploy the app for .NET 6 framework
 steps:
 - task: UseDotNet@2
   inputs:
