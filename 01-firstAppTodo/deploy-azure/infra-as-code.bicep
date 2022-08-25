@@ -301,8 +301,8 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
     ConnectionString: listConnectionStrings(cosmosDbName.id, '2019-12-12').connectionStrings[0].connectionString
   }
   dependsOn: [
-    appServiceSiteExtension
-  ]
+    appInsights
+  ]bf
 }
 
 // this is to add app insights to Kudu app, but this is generating some exception
