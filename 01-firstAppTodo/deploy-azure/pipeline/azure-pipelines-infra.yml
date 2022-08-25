@@ -20,56 +20,45 @@ parameters:
   type: string
   default: 'Azure Personal'
 
-variables:
-  vmImageName: 'ubuntu-latest'
-  buildConfiguration: 'Release'
-  dotNetFramework: 'net6.0'
-  dotNetVersion: '6.0.x'
-  azureServiceConnection: ${{parameters.serviceConnectionName}}
-  resourceGroupName: 'rg-firstapp-${{parameters.environmentName}}-${{parameters.deploymentLocationSuffix}}'
-  location: ${{parameters.deploymentLocation}}
-  templateFile: './01-firstAppTodo/deploy-azure/infra-as-code.bicep'
-  # Ideally this should be retrieve as output, this is to be implemented
-  # from docs, it seems we can use deploymentOutputs parameter from AzureResourceManagerTemplateDeployment
-  azureAppServiceName: 'webapptodofirstapp${{parameters.environmentName}}${{parameters.deploymentLocationSuffix}}'
-
 stages:
 - stage: Deploy_${{parameters.environmentName}}
   displayName: Deploy to (${{parameters.environmentName}} environment)
   jobs:
   - deployment: DeployWebsite
     pool:
-        vmImage: $(vmImageName)
+        vmImage: 'ubuntu-latest'
     displayName: Deploy website
     environment: ${{parameters.environmentType}}
     strategy:
       runOnce:
         deploy:
+          variables:
+            resourceGroupName: 'rg-firstapp-${{parameters.environmentName}}-${{parameters.deploymentLocationSuffix}}'
           steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: '$(azureServiceConnection)'
+              azureSubscription: '${{parameters.serviceConnectionName}}'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
-              inlineScript: 'az group create --name $(resourceGroupName) --location $(location)'
+              inlineScript: 'az group create --name $(resourceGroupName) --location ${{parameters.deploymentLocation}}'
 
           - task: AzureResourceManagerTemplateDeployment@3
             inputs:
               deploymentScope: 'Resource Group'
-              azureResourceManagerConnection: '$(azureServiceConnection)'
+              azureResourceManagerConnection: '${{parameters.serviceConnectionName}}'
               action: 'Create Or Update Resource Group'
               resourceGroupName: '$(resourceGroupName)'
-              location: '$(location)'
+              location: '${{parameters.deploymentLocation}}'
               templateLocation: 'Linked artifact'
-              csmFile: '$(templateFile)'
-              overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location $(location) -location_suffix ${{parameters.deploymentLocationSuffix}}'
+              csmFile: './01-firstAppTodo/deploy-azure/infra-as-code.bicep'
+              overrideParameters: ' -environment ${{parameters.environmentName}} -subnetAddressPrefix ${{parameters.subnetAddressPrefix}} -location ${{parameters.deploymentLocation}} -location_suffix ${{parameters.deploymentLocationSuffix}}'
               deploymentMode: 'Complete'
               deploymentName: 'DeployPipelineTemplate'
           - task: UseDotNet@2
             inputs:
-              version: $(dotNetVersion)
+              version: '6.0.x'
               includePreviewVersions: true
-          - script: dotnet build --configuration $(buildConfiguration)
+          - script: dotnet build --configuration Release
             displayName: 'Build .NET 6 Application'
             workingDirectory: '01-firstAppTodo/'
 
@@ -84,8 +73,10 @@ stages:
             retryCountOnTaskFailure: 10
             inputs:
               appType: webApp
-              azureSubscription: $(azureServiceConnection) #this is the name of the SPN
-              appName: $(azureAppServiceName) #App Service's unique name
+              azureSubscription: ${{parameters.serviceConnectionName}} #this is the name of the SPN
+              # Ideally this should be retrieve as output, this is to be implemented
+              # from docs, it seems we can use deploymentOutputs parameter from AzureResourceManagerTemplateDeployment
+              appName: 'webapptodofirstapp${{parameters.environmentName}}${{parameters.deploymentLocationSuffix}}' #App Service's unique name
               package: $(System.DefaultWorkingDirectory)/01-firstAppTodo/**/*.zip
 
 - stage: SmokeTest_${{parameters.environmentName}}
