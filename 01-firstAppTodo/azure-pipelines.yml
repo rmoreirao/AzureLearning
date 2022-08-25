@@ -23,9 +23,9 @@ pool:
 stages:
 
 # Lint the Bicep file.
-- stage: Lint
-  jobs: 
-  - template: deploy-azure/azure-devops-lint.yml
+# - stage: Lint
+#   jobs: 
+#   - template: deploy-azure/azure-devops-lint.yml
 
 # Deploy to the Dev environment.
 - template: deploy-azure/azure-devops-website.yml

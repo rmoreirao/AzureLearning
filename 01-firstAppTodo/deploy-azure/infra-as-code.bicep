@@ -14,6 +14,8 @@ var subnetCosmosDBAdressSpace = '10.${subnetAddressPrefix}.2.0/24'
 var webAppName_var = 'webapptodofirstapp${environment}${location_suffix}'
 var appServicePlanName_var = 'asp-webapptodofirstapp-${environment}-${location_suffix}'
 var cosmosDbName_var = 'cosmos-firstapp-${environment}-${location_suffix}'
+var appInsightName = 'appi-webapptodofirstapp-${environment}-${location_suffix}'
+var logAnalyticsName = 'la-webapptodofirstapp-${environment}-${location_suffix}'
 
 resource vnetName 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: vnetName_var
@@ -187,51 +189,6 @@ resource cosmosDbName_Tasks 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@
   }
 }
 
-// resource cosmosDbName_00000000_0000_0000_0000_000000000001 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
-//   parent: cosmosDbName
-//   name: '00000000-0000-0000-0000-000000000001'
-//   properties: {
-//     roleName: 'Cosmos DB Built-in Data Reader'
-//     type: 'BuiltInRole'
-//     assignableScopes: [
-//       cosmosDbName.id
-//     ]
-//     permissions: [
-//       {
-//         dataActions: [
-//           'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
-//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
-//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
-//         ]
-//         notDataActions: []
-//       }
-//     ]
-//   }
-// }
-
-// resource cosmosDbName_00000000_0000_0000_0000_000000000002 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-02-15-preview' = {
-//   parent: cosmosDbName
-//   name: '00000000-0000-0000-0000-000000000002'
-//   properties: {
-//     roleName: 'Cosmos DB Built-in Data Contributor'
-//     type: 'BuiltInRole'
-//     assignableScopes: [
-//       cosmosDbName.id
-//     ]
-//     permissions: [
-//       {
-//         dataActions: [
-//           'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
-//           'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
-//         ]
-//         notDataActions: []
-//       }
-//     ]
-//   }
-// }
-
 resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName_var
   location: 'West Europe'
@@ -255,6 +212,9 @@ resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
     targetWorkerSizeId: 0
     zoneRedundant: false
   }
+  dependsOn: [
+    logAnalyticsWorkspace
+  ]
 }
 
 resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
@@ -264,20 +224,12 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   identity: {
     type: 'SystemAssigned'
   }
+  dependsOn: [
+    logAnalyticsWorkspace
+  ]
   properties: {
     enabled: true
-    hostNameSslStates: [
-      {
-        name: '${webAppName_var}.azurewebsites.net'
-        sslState: 'Disabled'
-        hostType: 'Standard'
-      }
-      {
-        name: '${webAppName_var}.scm.azurewebsites.net'
-        sslState: 'Disabled'
-        hostType: 'Repository'
-      }
-    ]
+    
     serverFarmId: appServicePlanName.id
     vnetRouteAllEnabled: false
     siteConfig: {
@@ -304,23 +256,16 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-// resource webAppName_ftp 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
-//   parent: webAppName
-//   name: 'ftp'
-//   location: 'West Europe'
-//   properties: {
-//     allow: true
-//   }
-// }
-
-// resource webAppName_scm 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
-//   parent: webAppName
-//   name: 'scm'
-//   location: 'West Europe'
-//   properties: {
-//     allow: true
-//   }
-// }
+resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
+  parent: webAppName
+  name: 'appsettings'
+  properties: {
+    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+  }
+  dependsOn: [
+    appServiceSiteExtension
+  ]
+}
 
 resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: webAppName
@@ -370,32 +315,38 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
   }
 }
 
-resource webAppName_webAppName_azurewebsites_net 'Microsoft.Web/sites/hostNameBindings@2022-03-01' = {
+resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
   parent: webAppName
-  name: '${webAppName_var}.azurewebsites.net'
-  location: 'West Europe'
+  name: 'Microsoft.ApplicationInsights.AzureWebSites'
+  dependsOn: [
+    appInsights
+  ]
+}
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightName
+  location: location
+  kind: 'string'
   properties: {
-    siteName: 'webapptodofirstappdev'
-    hostNameType: 'Verified'
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalyticsWorkspace.id
   }
 }
 
-// resource webAppName_Microsoft_AspNetCore_AzureAppServices_SiteExtension 'Microsoft.Web/sites/siteextensions@2022-03-01' = {
-//   parent: webAppName
-//   name: 'Microsoft.AspNetCore.AzureAppServices.SiteExtension'
-//   location: 'West Europe'
-// }
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'AppInsights${webAppName.name}'
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+  name: logAnalyticsName
   location: location
-  tags: {
-    'hidden-link:${webAppName.id}': 'Resource'
-    displayName: 'AppInsightsComponent'
-  }
-  kind: 'web'
+  
   properties: {
-    Application_Type: 'web'
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 120
+    features: {
+      searchVersion: 1
+      legacy: 0
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
   }
 }
 
