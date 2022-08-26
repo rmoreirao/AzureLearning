@@ -53,7 +53,7 @@
 	* Create different Service Connections (one for Dev and other for Prod) on Azure and allow RBAC access to only specific resource groups - Pipeline security
 	* Enhance Bicep file
 	* Estimate the costs of the solution
-	* Create Health Checks and alerts for that - only for prod!!
+	* Create Health Checks and alerts for that - only for prod!
 	* Make App Service Https only
 	
 * Resources:
