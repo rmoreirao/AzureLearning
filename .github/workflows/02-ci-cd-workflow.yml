@@ -27,7 +27,7 @@ jobs:
       with:
         creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-    - name: Azure CLI script
+    - name: Create Resource Group
       uses: azure/CLI@v1
       with:
         azcliversion: latest
@@ -36,7 +36,7 @@ jobs:
           az group create --name $rgName --location $location
 
     # Good documentation on getting output variables: https://github.com/Azure/arm-deploy#another-example-on-how-to-use-this-action-to-get-the-output-of-arm-template
-    - name: deploy
+    - name: Deploy Azure Infra
       id: deploy
       uses: azure/arm-deploy@v1
       with:
@@ -54,7 +54,17 @@ jobs:
         username: ${{ secrets.CLIENT_ID }}
         password: ${{ secrets.CLIENT_SECRET }}
         
-    - run: |
+    - name: Build docker image
+      run: |
         cd 02-AspNetCore_Docker_Github
         docker build . -t ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
-        docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+        
+    - name: Scan docker image
+      uses: Azure/container-scan@v0
+      with:
+        image-name: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+        severity-threshold: CRITICAL
+        run-quality-checks: true
+    
+    - name: Push image
+      run: docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
