@@ -9,12 +9,13 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL"
+name: "CodeQL - Perform Code Quality and Security Checks"
 
 on:
+  # this is a heavy process, so only execute manually!
+  # ideally is to schedule it, or make it lighter for intraday checks
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
+
 
 jobs:
   analyze:
