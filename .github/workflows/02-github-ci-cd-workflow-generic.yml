@@ -67,6 +67,8 @@ jobs:
     - name: Log in with Azure
       uses: Azure/login@v1
       with:
+        # CLIENT_ID = Client ID of Service Principal
+        # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
         creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
 
     - name: Create Resource Group
