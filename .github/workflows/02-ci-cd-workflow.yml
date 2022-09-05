@@ -30,8 +30,10 @@ jobs:
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
-        azcliversion: 2.0.72
-        inlineScript: az group create --name $rgName --location $location --subscription ${{ secrets.SUBSCRIPTION_ID }}
+        azcliversion: latest
+        inlineScript: |
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+          az group create --name $rgName --location $location
 
     - name: deploy
       uses: azure/arm-deploy@v1
