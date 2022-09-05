@@ -13,6 +13,8 @@
 
 -> https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-docker-webapp?view=azure-devops&tabs=java%2Cyaml
 
+-> https://github.com/marketplace/actions/azure-login
+
 # 01 First App Todo - ASP.NET Core app 6 + Cosmos DB + Azure DevOps (CI) + Bicep
 
 * Naming Convention: {type}-{workload}-{env}-{region}
@@ -63,15 +65,15 @@
 
 # Build, run and push the Container
 ## Build and run locally: Access the application via http://localhost:5000 
-docker build -t acrtododockerwebappdev4we.azurecr.io/learning/tododockerwebapp:1.0 .
-docker run -it --rm -p 5000:80 --name tododockerwebapp_container acrtododockerwebappdev4we.azurecr.io/learning/tododockerwebapp:1.0
+docker build -t acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0 .
+docker run -it --rm -p 5000:80 --name tododockerwebapp_container acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0
 
 ## Push container image to ACR (Azure Container Registry)
 az login
-TOKEN=$(az acr login --name acrtododockerwebappdev4we --expose-token --output tsv --query accessToken)
-docker login acrtododockerwebappdev4we.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password $TOKEN
+TOKEN=$(az acr login --name acrtododockerwebappdev5we --expose-token --output tsv --query accessToken)
+docker login acrtododockerwebappdev5we.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password $TOKEN
 
-docker push acrtododockerwebappdev4we.azurecr.io/learning/tododockerwebapp:1.0
+docker push acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0
 
 * What can be enhanced:
 	
