@@ -36,6 +36,7 @@ jobs:
           az group create --name $rgName --location $location
 
     - name: deploy
+      id: deploy
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
