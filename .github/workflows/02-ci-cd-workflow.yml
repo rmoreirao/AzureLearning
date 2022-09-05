@@ -45,6 +45,8 @@ jobs:
         template: ./02-AspNetCore_Docker_Github/infra-as-code.bicep
         parameters: 'location=${{ env.location }} location_suffix=${{ env.location_suffix }} environment=${{ env.environment }}'
         failOnStdErr: false
+#         This is just for debugging reasons!
+        deploymentMode: Validate
         
 #     - run: echo ${{ steps.deploy.outputs.acrLoginServer }}
     
