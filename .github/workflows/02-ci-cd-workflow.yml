@@ -59,12 +59,21 @@ jobs:
         cd 02-AspNetCore_Docker_Github
         docker build . -t ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
         
-    - name: Scan docker image
-      uses: Azure/container-scan@v0
-      with:
-        image-name: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
-        severity-threshold: CRITICAL
-        run-quality-checks: true
+#     - name: Scan docker image
+#       uses: Azure/container-scan@v0
+#       with:
+#         image-name: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+#         severity-threshold: CRITICAL
+#         run-quality-checks: true
     
     - name: Push image
       run: docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+      
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ steps.deploy.outputs.webAppName }}
+        images: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+    
+    - name: Azure logout
+      run: |
+        az logout
