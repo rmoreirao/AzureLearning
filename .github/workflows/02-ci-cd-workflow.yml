@@ -35,6 +35,7 @@ jobs:
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
           az group create --name $rgName --location $location
 
+    # Good documentation on getting output variables: https://github.com/Azure/arm-deploy#another-example-on-how-to-use-this-action-to-get-the-output-of-arm-template
     - name: deploy
       id: deploy
       uses: azure/arm-deploy@v1
@@ -45,4 +46,15 @@ jobs:
         parameters: 'location=${{ env.location }} location_suffix=${{ env.location_suffix }} environment=${{ env.environment }}'
         failOnStdErr: false
         
-    - run: echo ${{ steps.deploy.outputs.acrLoginServer }}
+#     - run: echo ${{ steps.deploy.outputs.acrLoginServer }}
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: ${{ steps.deploy.outputs.acrLoginServer }}
+        username: ${{ secrets.CLIENT_ID }}
+        password: ${{ secrets.CLIENT_SECRET }}
+        
+    - run: |
+        cd 02-AspNetCore_Docker_Github
+        docker build . -t ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+        docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
