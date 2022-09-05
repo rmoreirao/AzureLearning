@@ -64,6 +64,7 @@ docker push acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0
   * Add automated tests and Code / Security checks
 	
 * Resources:
+    * Docker Basics course:  https://www.educative.io/courses/working-with-containers-docker-docker-compose 
 	* Create Cosmos DB Web App: [ASP.NET Core MVC web app tutorial using Azure Cosmos DB | Microsoft Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/sql-api-dotnet-application)
     * ARM / Bicep Quickstart Template for Web App + CosmosDB + App Insight: [Web App w/ Application Insights sending to Log Analytics (microsoft.com)](https://azure.microsoft.com/en-us/resources/templates/web-app-loganalytics/)
     * Nice Github Info for CI: https://lab.github.com/githubtraining/github-actions:-continuous-delivery-with-azure
