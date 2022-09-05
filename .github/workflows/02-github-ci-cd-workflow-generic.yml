@@ -13,6 +13,9 @@ on:
       location_suffix:
         required: true
         type: string
+    outputs:
+      webAppUrl:
+        value: ${{ jobs.build.outputs.webAppUrl }}
 
   workflow_dispatch:
     inputs:
@@ -41,11 +44,11 @@ env:
   rgName: rg-tododockerwebapp-${{ inputs.environment }}-${{ inputs.location_suffix }}
 
 jobs:
-
   build:
 
     runs-on: ubuntu-latest
-
+    outputs:
+      webAppUrl: ${{ steps.deploy-web-app.outputs.webapp-url }}
     steps:
     - uses: actions/checkout@main
     
@@ -95,3 +98,14 @@ jobs:
     
     - name: Push image
       run: docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+
+    - name: Deploy Webapp to ${{ steps.deploy.outputs.webAppName }}
+      id: deploy-web-app
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ steps.deploy.outputs.webAppName }}
+        images: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+    
+    - name: Azure logout
+      run: |
+        az logout

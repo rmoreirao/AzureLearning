@@ -1,70 +1,57 @@
-name: 02 CI CD Workflow
+name: 02 CI CD Full Workflow with Approvals
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    inputs:
+      dev-env:
+        description: 'dev environment - ex.: dev1'
+        required: true
+        type: string
+        default: dev1
+      location:
+        description: 'location - ex.: westeurope'
+        required: true
+        type: string
+        default: westeurope
+      location_suffix:
+        description: 'location suffix - ex.: we'
+        required: true
+        type: string
+        default: we
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
-env:
-  rgName: rg-tododockerwebapp-dev-we
-  location: westeurope
-  location_suffix: we
-  environment: dev
+
 
 jobs:
-
-  build:
-
+  
+  build_dev_env:
     runs-on: ubuntu-latest
-
+    environment:
+      name: development
+      url: ${{ steps.deploy-dev.outputs.webAppUrl }}
     steps:
-    - uses: actions/checkout@main
-    
-    - name: Log in with Azure
-      uses: Azure/login@v1
+    - name: Build and Deploy Development environment
+      id: deploy-dev
+    # Docs on Reusing WF: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+      uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
       with:
-        creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+        environment: ${{ inputs.dev-env }}
+        location: ${{ inputs.location }}
+        location_suffix: ${{ inputs.location_suffix }}
 
-    - name: Create Resource Group
-      uses: azure/CLI@v1
+  build_prod_env:
+    needs: build_dev_env
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+    - name: Build and Deploy Production environment
+    # Docs on Reusing WF: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+      uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
       with:
-        azcliversion: latest
-        inlineScript: |
-          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
-          az group create --name $rgName --location $location
-
-    # Good documentation on getting output variables: https://github.com/Azure/arm-deploy#another-example-on-how-to-use-this-action-to-get-the-output-of-arm-template
-    - name: Deploy Azure Infra
-      id: deploy
-      uses: azure/arm-deploy@v1
-      with:
-        subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-        resourceGroupName: ${{ env.rgName }}
-        template: ./02-AspNetCore_Docker_Github/infra-as-code.bicep
-        parameters: 'location=${{ env.location }} location_suffix=${{ env.location_suffix }} environment=${{ env.environment }}'
-        failOnStdErr: false
-        
-#     - run: echo ${{ steps.deploy.outputs.acrLoginServer }}
-    
-    - uses: azure/docker-login@v1
-      with:
-        login-server: ${{ steps.deploy.outputs.acrLoginServer }}
-        username: ${{ secrets.CLIENT_ID }}
-        password: ${{ secrets.CLIENT_SECRET }}
-        
-    - name: Build docker image
-      run: |
-        cd 02-AspNetCore_Docker_Github
-        docker build . -t ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
-        
-    - name: Scan docker image
-      uses: Azure/container-scan@v0
-      with:
-        image-name: ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
-        severity-threshold: CRITICAL
-        run-quality-checks: true
-    
-    - name: Push image
-      run: docker push ${{ steps.deploy.outputs.acrLoginServer }}/learning/tododockerwebapp:${{ github.sha }}
+        environment: prod
+        location: ${{ inputs.location }}
+        location_suffix: ${{ inputs.location_suffix }}
