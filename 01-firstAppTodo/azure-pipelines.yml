@@ -16,6 +16,9 @@ trigger:
   branches:
     include:
       - main
+  paths:
+    include:
+    - 01-firstAppTodo
 
 variables:
   # Set it to true if you want VERBOSE execution
