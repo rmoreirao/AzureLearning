@@ -1,17 +1,44 @@
-name: 02 CI CD Workflow
+name: 02 CI CD Generic Workflow
 
 on:
+#  doc on reusing wfs: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      location:
+        required: true
+        type: string
+      location_suffix:
+        required: true
+        type: string
+
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    inputs:
+      environment:
+        description: 'env name. ex.: dev1 or prod'
+        required: true
+        type: string
+        default: dev1
+      location:
+        description: 'location - ex.: westeurope'
+        required: true
+        type: string
+        default: westeurope
+      location_suffix:
+        description: 'location suffix - ex.: we'
+        required: true
+        type: string
+        default: we
+  # workflow_dispatch:
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 env:
-  rgName: rg-tododockerwebapp-dev-we
-  location: westeurope
-  location_suffix: we
-  environment: dev
+  rgName: rg-tododockerwebapp-${{ inputs.environment }}-${{ inputs.location_suffix }}
 
 jobs:
 
@@ -33,7 +60,7 @@ jobs:
         azcliversion: latest
         inlineScript: |
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
-          az group create --name $rgName --location $location
+          az group create --name $rgName --location ${{ inputs.location }}
 
     # Good documentation on getting output variables: https://github.com/Azure/arm-deploy#another-example-on-how-to-use-this-action-to-get-the-output-of-arm-template
     - name: Deploy Azure Infra
@@ -43,7 +70,7 @@ jobs:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
         resourceGroupName: ${{ env.rgName }}
         template: ./02-AspNetCore_Docker_Github/infra-as-code.bicep
-        parameters: 'location=${{ env.location }} location_suffix=${{ env.location_suffix }} environment=${{ env.environment }}'
+        parameters: 'location=${{ inputs.location }} location_suffix=${{ inputs.location_suffix }} environment=${{ inputs.environment }}'
         failOnStdErr: false
         
 #     - run: echo ${{ steps.deploy.outputs.acrLoginServer }}
