@@ -1,6 +1,6 @@
 
 
-# 01 First App Todo - ASP.NET Core app 6 + Cosmos DB + Azure DevOps (CI) + Bicep
+# 02 App Todo - ASP.NET Core app 6 + Docker Container + Azure Container Registry + Cosmos DB + Github (CI) + Bicep
 
 * Naming Convention: {type}-{workload}-{env}-{region}
 * Resource Group naming convention: rg-tododockerwebapp-dev-we
