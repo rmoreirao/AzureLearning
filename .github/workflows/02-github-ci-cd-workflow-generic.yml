@@ -4,6 +4,11 @@ on:
 #  doc on reusing wfs: https://docs.github.com/en/actions/using-workflows/reusing-workflows
   workflow_call:
     inputs:
+      environment_type:
+        description: 'env type: development or production'
+        required: true
+        type: string
+        default: development
       environment:
         required: true
         type: string
@@ -19,6 +24,11 @@ on:
 
   workflow_dispatch:
     inputs:
+      environment_type:
+        description: 'env type: development or production'
+        required: true
+        type: string
+        default: development
       environment:
         description: 'env name. ex.: dev1 or prod'
         required: true
@@ -47,8 +57,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    outputs:
-      webAppUrl: ${{ steps.deploy-web-app.outputs.webapp-url }}
+
+    environment:
+      name: ${{ inputs.environment_type }}
+      url: ${{ steps.deploy-web-app.outputs.webapp-url }}
     steps:
     - uses: actions/checkout@main
     

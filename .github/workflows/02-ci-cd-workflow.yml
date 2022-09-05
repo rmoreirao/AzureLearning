@@ -25,33 +25,32 @@ on:
 
 
 
+  # Two environments need to be created: development and production
+
 jobs:
-  
-  build_dev_env:
-    runs-on: ubuntu-latest
-    environment:
-      name: development
-      url: ${{ steps.deploy-dev.outputs.webAppUrl }}
-    steps:
-    - name: Build and Deploy Development environment
-      id: deploy-dev
+  deploy-dev:
+    uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
+      # url: ${{ steps.deploy-dev.outputs.webAppUrl }}
+    # steps:
+    # - name: Build and Deploy Development environment
+    #   id: deploy-dev
     # Docs on Reusing WF: https://docs.github.com/en/actions/using-workflows/reusing-workflows
-      uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
-      with:
-        environment: ${{ inputs.dev-env }}
-        location: ${{ inputs.location }}
-        location_suffix: ${{ inputs.location_suffix }}
+    with:
+      environment_type: development
+      environment: ${{ inputs.dev-env }}
+      location: ${{ inputs.location }}
+      location_suffix: ${{ inputs.location_suffix }}
 
   build_prod_env:
     needs: build_dev_env
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-    steps:
-    - name: Build and Deploy Production environment
+    uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
+      # url: ${{ steps.deploy-dev.outputs.webAppUrl }}
+    # steps:
+    # - name: Build and Deploy Development environment
+    #   id: deploy-dev
     # Docs on Reusing WF: https://docs.github.com/en/actions/using-workflows/reusing-workflows
-      uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
-      with:
-        environment: prod
-        location: ${{ inputs.location }}
-        location_suffix: ${{ inputs.location_suffix }}
+    with:
+      environment_type: production
+      environment: prod
+      location: ${{ inputs.location }}
+      location_suffix: ${{ inputs.location_suffix }}
