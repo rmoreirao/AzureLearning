@@ -30,6 +30,7 @@ on:
 jobs:
   build_and_deploy_dev_env:
     uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
+    secrets: inherit
       # url: ${{ steps.deploy-dev.outputs.webAppUrl }}
     # steps:
     # - name: Build and Deploy Development environment
@@ -44,6 +45,7 @@ jobs:
   build_and_deploy_prod_env:
     needs: build_and_deploy_dev_env
     uses: rmoreirao/AzureLearning/.github/workflows/02-github-ci-cd-workflow-generic.yml@main
+    secrets: inherit
       # url: ${{ steps.deploy-dev.outputs.webAppUrl }}
     # steps:
     # - name: Build and Deploy Development environment
