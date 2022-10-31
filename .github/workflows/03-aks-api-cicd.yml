@@ -84,7 +84,8 @@ jobs:
             helmChart: './03-AKS-WebApp-Cosmos-GH/aks/todowebappapi/'
             overrides: |
               db.connstring:${{ secrets.AKS_03_COSMOS_DB_CONN_STRING }}
-              acrurl:${{ secrets.AKS_03_ACR_URL }}
+              image.acrurl:${{ secrets.AKS_03_ACR_URL }}
+              image.tag:${{ github.sha }}
             helm-version: "latest"
           id: bake
 
