@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  todowebapp.api:
+    container_name: todowebappapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=AccountEndpoint=https://cosmos-todoakswebapp-dev1-we.documents.azure.com:443/;AccountKey=AvTkXWObpU8qIMd3ElbvIcYbxLTPcFHyHNF8VAsBQqqbXyhwkpYDQkLwCjbQxBeEGxkaczALD6CAEgElLaDsjQ==;
+      - CosmosDb__DatabaseName=Tasks
+      - CosmosDb__ContainerName=Item
+    ports:
+      - "80"
+
+  todowebapp.client:
+    container_name: todowebappclient
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ToDoAPIUrl=http://todowebappapi
+    ports:
+      - "80"
+    depends_on: 
+        - todowebapp.api
+

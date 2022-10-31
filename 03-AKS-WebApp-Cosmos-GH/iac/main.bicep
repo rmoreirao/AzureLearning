@@ -18,9 +18,9 @@ param location_suffix string = 'we'
 // Ideally Prod would be more powerful than Dev, so a parameters file would be a better solution
 param environment string = 'dev1'
 
-var acrName = 'acrtodoakswebapp${environment}${location_suffix}'
+//The idea is to have one ACR and not specific to each environment
+var acrName = 'acrtodoakswebapp${location_suffix}'
 var cosmosDbName_var = 'cosmos-todoakswebapp-${environment}-${location_suffix}'
-
 
 resource cosmosDbName 'Microsoft.DocumentDB/databaseAccounts@2022-02-15-preview' = {
   name: cosmosDbName_var
@@ -105,6 +105,17 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   properties: {
     adminUserEnabled: true
   }
+}
+
+module aks './aks.bicep' = {
+  name: 'aksDeployment'
+  params: {
+    location: location
+    environment: environment
+    location_suffix: location_suffix 
+    acrName: acr.name
+  }
+  scope: resourceGroup()
 }
 
 output acrLoginServer string = acr.properties.loginServer

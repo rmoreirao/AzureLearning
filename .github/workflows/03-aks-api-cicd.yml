@@ -1,0 +1,99 @@
+name: AKS_03_Build and deploy ToDo AKS Web App API
+on:
+  push:
+    branches: [ "main" ]
+    paths: 
+      - '03-AKS-WebApp-Cosmos-GH/ToDoWebAppAKS/ToDoWebApp.API/**'
+      - '03-AKS-WebApp-Cosmos-GH/aks/todowebappapi/**'
+    
+      
+  workflow_dispatch:
+
+env:
+  rgName: rg-todoakswebapp-dev1-${{ secrets.AKS_03_LOCATION_SUFFIX }}
+  AKS_CLUSTER_NAME: aks-todoakswebapp-dev1-${{ secrets.AKS_03_LOCATION_SUFFIX }}
+
+jobs:
+  
+  build:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v3
+
+        - name: Log in with Azure
+          uses: Azure/login@v1
+          with:
+            # CLIENT_ID = Client ID of Service  Principal
+            # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
+            creds: '{"clientId":"${{ secrets.AKS_03_CLIENT_ID }}","clientSecret":"${{ secrets.AKS_03_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AKS_03_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+
+        - name: Build ToDo AKS Web App API docker image and push to ACR
+          working-directory: 03-AKS-WebApp-Cosmos-GH/ToDoWebAppAKS
+          run:  az acr build --image todowebapp/todowebapp-api:${{ github.sha }}  --registry ${{ secrets.AKS_03_ACR_NAME }} --build-arg build_version=${{ github.sha }} --file ToDoWebApp.API/Dockerfile .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+
+    steps:
+        - uses: actions/checkout@v3
+
+        - name: Log in with Azure
+          uses: Azure/login@v1
+          with:
+            # CLIENT_ID = Client ID of Service  Principal
+            # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
+            creds: '{"clientId":"${{ secrets.AKS_03_CLIENT_ID }}","clientSecret":"${{ secrets.AKS_03_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AKS_03_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AKS_03_TENANT_ID }}"}'
+
+        # This is taken from here: https://github.com/Azure/aks-set-context#kubelogin
+        - name: Set up kubelogin for non-interactive login
+          run: |
+            curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+            sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
+            rm -f kubelogin-linux-amd64.zip
+            kubelogin --version
+
+
+        # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+        - name: Get K8s context
+          uses: azure/aks-set-context@v3
+          with:
+            # Non-interactive login: https://github.com/Azure/k8s-deploy/issues/239
+            # And here: https://github.com/Azure/aks-set-context#kubelogin
+            admin: 'true'
+            use-kubelogin: 'true'
+            resource-group: ${{ env.rgName }}
+            cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+
+        # Runs Helm to create manifest files
+        - name: Bake deployment
+          uses: azure/k8s-bake@v2
+          with:
+            renderEngine: "helm"
+            silent: 'false'
+            arguments: |
+              --debug
+            helmChart: './03-AKS-WebApp-Cosmos-GH/aks/todowebappapi/'
+            overrides: |
+              db.connstring:${{ secrets.AKS_03_COSMOS_DB_CONN_STRING }}
+              acrurl:${{ secrets.AKS_03_ACR_URL }}
+            helm-version: "latest"
+          id: bake
+
+        - name: Deploy to k8s
+          uses: Azure/k8s-deploy@v4
+          with:
+            action: deploy
+            force: true
+            manifests: |
+              ${{ steps.bake.outputs.manifestsBundle }}
+            images: |
+              ${{ secrets.ACR_URL }}/todowebapp/todowebapp-api:${{ github.sha }}
