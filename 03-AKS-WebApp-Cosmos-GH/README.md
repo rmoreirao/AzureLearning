@@ -26,11 +26,12 @@ Helpful information can be found on "AzureLearningAKS" repo!
 ### Setup CI CD User Rights
 CI CD User in Azure needs Contributor and User Access Administrator roles
 ### Set the following Github Secrets:
-- 03_AKS_ACR_NAME: name of ACR
-- 03_AKS_ACR_URL: URL for the ACR
-- 03_AKS_CLIENT_ID: Client ID user connecting from Github to Azure
-- 03_AKS_CLIENT_SECRET: Secret to connect from Github to Azure
-- 03_AKS_LOCATION: Azure Location - ex.: westeurope
-- 03_AKS_LOCATION_SUFFIX: Azure Location Suffix - ex.: we
-- 03_AKS_SUBSCRIPTION_ID: Azure Subscription ID
-- 03_AKS_TENANT_ID: Azure Tenant ID
+- AKS_03_ACR_NAME: name of ACR
+- AKS_03_ACR_URL: URL for the ACR
+- AKS_03_CLIENT_ID: Client ID user connecting from Github to Azure
+- AKS_03_CLIENT_SECRET: Secret to connect from Github to Azure
+- AKS_03_LOCATION: Azure Location - ex.: westeurope
+- AKS_03_LOCATION_SUFFIX: Azure Location Suffix - ex.: we
+- AKS_03_SUBSCRIPTION_ID: Azure Subscription ID
+- AKS_03_TENANT_ID: Azure Tenant ID
+- AKS_03_COSMOS_DB_CONN_STRING: Cosmos DB Connection String

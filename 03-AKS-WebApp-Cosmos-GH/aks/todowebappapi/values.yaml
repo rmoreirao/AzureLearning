@@ -1,5 +1,5 @@
 db:
-  connstring: AccountEndpoint=https://cosmos-todoakswebapp-dev1-we.documents.azure.com:443/;AccountKey=AvTkXWObpU8qIMd3ElbvIcYbxLTPcFHyHNF8VAsBQqqbXyhwkpYDQkLwCjbQxBeEGxkaczALD6CAEgElLaDsjQ==;
+  connstring: connection-string-here-for-local-development 
   dbname: Tasks
   containername: Item
 image:
