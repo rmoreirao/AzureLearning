@@ -1,4 +1,4 @@
-name: AKS_03_Build and deploy ToDo AKS Web App API
+name: 03-AKS-Build and deploy ToDo AKS Web App API
 on:
   push:
     branches: [ "main" ]
@@ -29,7 +29,7 @@ jobs:
           with:
             # CLIENT_ID = Client ID of Service  Principal
             # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
-            creds: '{"clientId":"${{ secrets.AKS_03_CLIENT_ID }}","clientSecret":"${{ secrets.AKS_03_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AKS_03_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+            creds: '{"clientId":"${{ secrets.AKS_03_CLIENT_ID }}","clientSecret":"${{ secrets.AKS_03_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AKS_03_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AKS_03_TENANT_ID }}"}'
 
         - name: Build ToDo AKS Web App API docker image and push to ACR
           working-directory: 03-AKS-WebApp-Cosmos-GH/ToDoWebAppAKS
