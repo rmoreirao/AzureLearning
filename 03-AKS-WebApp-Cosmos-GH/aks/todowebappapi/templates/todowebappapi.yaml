@@ -23,7 +23,7 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: DatabaseSettings__ConnectionString
+            - name: ConnectionString
               value: {{.Values.db.connstring}}
           resources:
             requests:
