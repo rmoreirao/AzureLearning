@@ -16,7 +16,7 @@ kubectl apply -f .\aks\
 kubectl get service
 
 
-# API Helm Deploy
+# API Deploy
 
 ### Nice resources
 https://learn.microsoft.com/en-us/training/modules/aks-deployment-pipeline-github-actions/8-helm

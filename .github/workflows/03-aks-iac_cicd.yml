@@ -59,3 +59,17 @@ jobs:
       - name: Deploy bicep
         working-directory: 03-AKS-WebApp-Cosmos-GH/iac/
         run: az deployment group create --name "Deploy" --resource-group ${{ env.rgName }}  --template-file main.bicep  --parameters location_suffix="${{ secrets.AKS_03_LOCATION_SUFFIX }}" environment="${{ env.environment }}" 
+
+      # https://github.com/marketplace/actions/deploy-azure-resource-manager-arm-template
+
+      # - name: Deploy bicep
+      #   id: deploy
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+      #     resourceGroupName: ${{ env.rgName }}
+      #     template: ./03-AKS-WebApp-Cosmos-GH/iac/main.bicep
+      #     parameters: 'location_suffix=${{ secrets.AKS_03_LOCATION_SUFFIX }} environment=${{ env.environment }}'
+      #     failOnStdErr: false
+      
+      # - run: echo ${{ steps.deploy.outputs.containerName }}
