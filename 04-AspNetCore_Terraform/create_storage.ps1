@@ -1,4 +1,4 @@
-$RESOURCE_GROUP_NAME = "rg-04-todoapp"
+$RESOURCE_GROUP_NAME = "rg-04-todoapp-stg"
 $STORAGE_ACCOUNT_NAME= "stgtfstate04todoapp"
 $CONTAINER_NAME= "tfstate"
 # Create resource group

@@ -1,6 +1,6 @@
 terraform {
     backend "azurerm" {
-        resource_group_name  = "rg-04-todoapp"
+        resource_group_name  = "rg-04-todoapp-stg"
         storage_account_name = "stgtfstate04todoapp"
         container_name       = "tfstate"
         key                  = "actions.tfstate"
