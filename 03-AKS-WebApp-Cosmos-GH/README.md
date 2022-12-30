@@ -34,4 +34,11 @@ CI CD User in Azure needs Contributor and User Access Administrator roles
 - AKS_03_LOCATION_SUFFIX: Azure Location Suffix - ex.: we
 - AKS_03_SUBSCRIPTION_ID: Azure Subscription ID
 - AKS_03_TENANT_ID: Azure Tenant ID
-- AKS_03_COSMOS_DB_CONN_STRING: Cosmos DB Connection String
+- AKS_03_COSMOS_DB_CONN_STRING: Cosmos DB Connection String - this can be further automated
+
+# Testing the app
+### Get the AKS context in your local machine
+az aks get-credentials --resource-group rg-todoakswebapp-dev1-we --name aks-todoakswebapp-dev1-we
+
+### Get the external IP address of the app and try to open it
+kubectl get services
