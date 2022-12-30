@@ -1,6 +1,11 @@
 name: 04 CI/CD Terraform
 
-on: [workflow_dispatch]
+on: 
+  workflow_dispatch:
+  push:
+    paths: 
+      - '04-AspNetCore_Terraform/**'
+      - '.github/workflows/04-TF-cicd.yml'
 
 
 jobs:
