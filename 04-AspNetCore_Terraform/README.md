@@ -28,25 +28,16 @@
 * SourceConttrol: GitHub 
 
 * To deploy the application
-  * Run the following Script in Powershell to create the Storage Account to store the State file
+  * 1) Run the following Script in Powershell to create the Storage Account to store the State file
     * create_storage.ps1
-  * Create a Service Principal with Contributor Role to Deploy the Application and set the Secrets in Github
+  * 2) Create a Service Principal with Contributor Role to Deploy the Application and set the Secrets in Github
     * Can run the following command for that: az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/SUBSCRIPTION_ID" --name="AzLearn04ServicePrincipal"
       * appId (Azure) → client_id 
       * password (Azure) → client_secret 
       * tenant (Azure) → tenant_id
+  * 3) Run the CICD pipelines from Github Actions for Terraform and the Web App 
 
-		
-* What can be enhanced:
-	* Implement the real Smoke Tests: check here: https://docs.microsoft.com/en-us/learn/modules/manage-multiple-environments-using-bicep-azure-pipelines/
-	* Implement a rollback on smoke tests issues: use app service deployment slots for that
-	* Enhance security, adding App Service to a Subnet and using Private Link to connect to Cosmos DB
-	* Create different Service Connections (one for Dev and other for Prod) on Azure and allow RBAC access to only specific resource groups - Pipeline security
-	* Enhance Bicep file
-	* Estimate the costs of the solution
-	* Create Health Checks and alerts for that - only for prod!
-	* Make App Service Https only
-	
+
 * Resources:
     * Deploy to Azure using Terraform and Github: https://gmusumeci.medium.com/deploying-terraform-in-azure-using-github-actions-step-by-step-bf8804b17711
 	* Create Cosmos DB Web App: [ASP.NET Core MVC web app tutorial using Azure Cosmos DB | Microsoft Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/sql-api-dotnet-application)
