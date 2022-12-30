@@ -1,0 +1,41 @@
+name: 04 CI/CD Web App
+
+on: 
+  workflow_dispatch:
+  push:
+    paths: 
+      - '04-AspNetCore_Terraform/todo/**'
+      - '.github/workflows/04-TF-cicd-webapp.yml'
+
+
+jobs:
+  ci_cd_todo_app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6
+
+      - name: Build with dotnet
+        working-directory: 04-AspNetCore_Terraform/todo
+        run: dotnet build --configuration Release
+
+      - name: dotnet publish
+        working-directory: 04-AspNetCore_Terraform/todo
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/todoapp
+
+      - name: Log in with Azure
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.TF_04_ARM_CLIENT_ID }}","clientSecret":"${{ secrets.TF_04_ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.TF_04_ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TF_04_ARM_TENANT_ID }}"}'
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "webapp-04-todoapp"
+          package: ${{env.DOTNET_ROOT}}/todoapp

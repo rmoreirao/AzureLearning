@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths: 
-      - '04-AspNetCore_Terraform/**'
+      - '04-AspNetCore_Terraform/terraform/**'
       - '.github/workflows/04-TF-cicd.yml'
 
 
