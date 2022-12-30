@@ -1,4 +1,4 @@
-name: Terraform Validate, Plan, Apply
+name: 04 CI/CD Terraform
 
 on: [workflow_dispatch]
 
