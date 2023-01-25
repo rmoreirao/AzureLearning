@@ -43,13 +43,13 @@
     		* 02-github-ci-cd-workflow-generic.yml: Generic steps for deploying to one env
 # Testing the Web App it locally:
 0) Create the Azure infra using commands described inside "infra-as-code.bicep"
-1) Copy the cosmos DB primary con string key and set it on appsettings.json
+1) Copy the cosmos DB primary con string key and set it on appsettings.json or build the docker image with --build-arg ConnectionString="{conn string}"
 2) run "dotnet run" command inside the "todo" folder
 
 # Build, run and push the Container
 ## Build and run locally: Access the application via http://localhost:5000 
-docker build -t acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0 .
-docker run -it --rm -p 5000:80 --name tododockerwebapp_container acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0
+- docker build -t acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0 .
+- docker run -it --rm -p 5000:80 --name tododockerwebapp_container acrtododockerwebappdev5we.azurecr.io/learning/tododockerwebapp:1.0
 
 ## Push container image to ACR (Azure Container Registry)
 az login
