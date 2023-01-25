@@ -12,13 +12,13 @@ az deployment group create \
 
 */
 
-param location string = 'westeurope'
+param location string = resourceGroup().location
 param location_suffix string = 'we'
 // For simplicity, we receive the env name as a parameter and we do not apply any special sizing with it
 // Ideally Prod would be more powerful than Dev, so a parameters file would be a better solution
 param environment string = 'dev3'
 
-var webAppName_var = 'webapptododockerwebapp${environment}${location_suffix}'
+var webAppName = 'webapptododockerwebapp${environment}${location_suffix}'
 var acrName = 'acrtododockerwebapp${environment}${location_suffix}'
 var webAppLinuxFxVersion = 'DOCKER|${acrName}.azurecr.io/learning/tododockerwebapp:1.0'
 var appServicePlanName_var = 'asp-tododockerwebapp-${environment}-${location_suffix}'
@@ -28,7 +28,7 @@ var appInsightName = 'appi-tododockerwebapp-${environment}-${location_suffix}'
 
 resource cosmosDbName 'Microsoft.DocumentDB/databaseAccounts@2022-02-15-preview' = {
   name: cosmosDbName_var
-  location: 'West Europe'
+  location: location
   tags: {
     defaultExperience: 'Core (SQL)'
     'hidden-cosmos-mmspecial': ''
@@ -60,7 +60,6 @@ resource cosmosDbName 'Microsoft.DocumentDB/databaseAccounts@2022-02-15-preview'
     locations: [
       {
         locationName: 'West Europe'
-        provisioningState: 'Succeeded'
         failoverPriority: 0
         isZoneRedundant: false
       }
@@ -97,7 +96,7 @@ resource cosmosDbName_Tasks 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@
 
 resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName_var
-  location: 'West Europe'
+  location: location
   sku: {
     name: 'B1'
     tier: 'Basic'
@@ -116,9 +115,9 @@ resource appServicePlanName 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
-  name: webAppName_var
-  location: 'West Europe'
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: webAppName
+  location: location
   kind: 'app,linux,container'
   identity: {
     type: 'SystemAssigned'
@@ -153,9 +152,8 @@ resource webAppName 'Microsoft.Web/sites@2022-03-01' = {
 
 
 resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
-  parent: webAppName
+  parent: webApp
   name: 'web'
-  location: 'West Europe'
   properties: {
     numberOfWorkers: 1
     netFrameworkVersion: 'v4.0'
@@ -198,7 +196,7 @@ resource webAppName_web 'Microsoft.Web/sites/config@2022-03-01' = {
 
 
 resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
-  parent: webAppName
+  parent: webApp
   name: 'appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
@@ -214,7 +212,7 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
 }
 
 resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
-  parent: webAppName
+  parent: webApp
   name: 'logs'
   properties: {
     applicationLogs: {
@@ -264,6 +262,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
 }
 
 output acrLoginServer string = acr.properties.loginServer
-output webAppName string = webAppName_var
+output webAppName string = webAppName
 output appServicePlanName string = appServicePlanName_var
 output cosmosDbName string = cosmosDbName_var
