@@ -35,6 +35,42 @@ helm upgrade \
             ./todowebappapi \
             --debug 
 
+### Check the status of the pods
+kubectl get pods
+kubectl describe pod pod_id_here
 
 ### To delete the resources
 helm upgrade todowebappapi
+
+# To run Kubernetes locally
+### Build the images using docker compose
+docker-compose -f ../ToDoWebAppAKS/docker-compose.yml -f ../ToDoWebAppAKS/docker-compose.override.yml build
+
+## Run kubernetes using Helm
+### Update the connstring on file todowebappapi/values-localdev
+### Applying Helm template for API - execute from root folder
+helm upgrade \
+            --install \
+            --atomic \
+            --wait \
+            -f ./todowebappapi/values-localdev.yaml \
+            todowebappapi \
+            ./todowebappapi \
+            --debug 
+
+### Applying Helm template for Client - execute from root folder
+helm upgrade \
+            --install \
+            --atomic \
+            --wait \
+            -f ./todowebappclient/values-localdev.yaml \
+            todowebappclient \
+            ./todowebappclient \
+            --debug 
+
+### Check the status of the pods - to investigate issues if they are not live
+kubectl get pods
+kubectl describe pod
+
+### Check the running Services
+kubectl get services

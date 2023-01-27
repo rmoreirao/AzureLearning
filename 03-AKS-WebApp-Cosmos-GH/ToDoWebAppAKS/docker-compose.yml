@@ -2,13 +2,15 @@ version: '3.4'
 
 services:
   todowebapp.api:
-    image: ${DOCKER_REGISTRY-}todowebappapi
+    # image: ${DOCKER_REGISTRY-}todowebappapi
+    image: local/todowebapp/todowebapp-api
     build:
       context: .
       dockerfile: ToDoWebApp.API/Dockerfile
 
   todowebapp.client:
-    image: ${DOCKER_REGISTRY-}todowebappclient
+    # image: ${DOCKER_REGISTRY-}todowebappclient
+    image: local/todowebapp/todowebapp-client
     build:
       context: .
       dockerfile: ToDoWebApp.Client/Dockerfile

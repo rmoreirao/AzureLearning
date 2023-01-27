@@ -5,7 +5,7 @@ services:
     container_name: todowebappapi
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=cosmosdb-connection-string-here!!!
+      - ConnectionString=AccountEndpoint=https://cosmos-todoakswebapp-dev1-we.documents.azure.com:443/;AccountKey=qbluxQAnyotkWsMHGn6ePa4j5fGbWArNbS2ZhhoEsSCvnrfDcZHMQlpfWmJuvfhRP8AbVRaI2LXQACDbsj2iOA==;
       - CosmosDb__DatabaseName=Tasks
       - CosmosDb__ContainerName=Item
     ports:

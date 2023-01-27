@@ -1,0 +1,7 @@
+db:
+  connstring: "AccountEndpoint=https://cosmos-todoakswebapp-dev1-we.documents.azure.com:443/;AccountKey=qbluxQAnyotkWsMHGn6ePa4j5fGbWArNbS2ZhhoEsSCvnrfDcZHMQlpfWmJuvfhRP8AbVRaI2LXQACDbsj2iOA==;"
+  dbname: Tasks
+  containername: Item
+image:
+  acrurl: local
+  tag: latest
