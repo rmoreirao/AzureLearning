@@ -16,7 +16,7 @@ kubectl apply -f .\aks\
 kubectl get service
 
 
-# API Deploy
+# API Deploy - from Local machine to AKS
 
 ### Nice resources
 https://learn.microsoft.com/en-us/training/modules/aks-deployment-pipeline-github-actions/8-helm

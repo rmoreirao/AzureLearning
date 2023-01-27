@@ -34,12 +34,6 @@ param agentCount int = 1
 @description('The size of the Virtual Machine.')
 param agentVMSize string = 'Standard_D2s_v3'
 
-@description('The type of operating system.')
-@allowed([
-  'Linux'
-  'Windows'
-])
-param osType string = 'Linux'
 
 param acrName string = 'acrtodoakswebapp${location_suffix}'
 
@@ -61,7 +55,18 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-01-02-previ
         osDiskSizeGB: osDiskSizeGB
         count: agentCount
         vmSize: agentVMSize
-        osType: osType
+        osType: 'Linux'
+        osSKU: 'Ubuntu'
+        type: 'VirtualMachineScaleSets'
+        mode: 'System'
+      }
+      {
+        name: 'workloads'
+        osDiskSizeGB: 128
+        count: 3
+        vmSize: agentVMSize
+        osType: 'Linux'
+        osSKU: 'Ubuntu'
         type: 'VirtualMachineScaleSets'
         mode: 'System'
       }
