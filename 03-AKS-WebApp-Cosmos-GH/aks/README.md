@@ -32,7 +32,7 @@ helm upgrade \
             --atomic \
             --wait \
             todowebappapi \
-            ./aks-helm/todowebappapi \
+            ./todowebappapi \
             --debug 
 
 
