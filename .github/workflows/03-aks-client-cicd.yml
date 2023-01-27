@@ -35,6 +35,10 @@ jobs:
           working-directory: 03-AKS-WebApp-Cosmos-GH/ToDoWebAppAKS
           run:  az acr build --image todowebapp/todowebapp-client:${{ github.sha }}  --registry ${{ secrets.AKS_03_ACR_NAME }} --build-arg build_version=${{ github.sha }} --file ToDoWebApp.Client/Dockerfile .
 
+        - name: Build ToDo AKS Web App API docker image and push to ACR - Latest Tag
+          working-directory: 03-AKS-WebApp-Cosmos-GH/ToDoWebAppAKS
+          run:  az acr build --image todowebapp/todowebapp-client:latest  --registry ${{ secrets.AKS_03_ACR_NAME }} --build-arg build_version=latest --file ToDoWebApp.Client/Dockerfile .
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
