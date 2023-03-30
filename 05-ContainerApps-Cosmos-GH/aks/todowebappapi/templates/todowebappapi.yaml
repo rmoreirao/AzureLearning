@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todowebappapi-deployment
+  labels:
+    app: todowebappapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todowebappapi
+  template:
+    metadata:
+      labels:
+        app: todowebappapi
+    spec:
+      containers:
+        - name: todowebappapi
+          image: {{.Values.image.acrurl}}/todowebapp/todowebapp-api:{{.Values.image.tag}}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionString
+              value: {{.Values.db.connstring}}
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 200m
+            limits:
+              memory: 128Mi
+              cpu: 400m
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: todowebappapi-service
+spec:
+  # For test purpose, set to NodePort
+  selector:
+    app: todowebappapi
+  ports:
+    - protocol: TCP
+      port: 80
+  
+
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: todowebappapi-service
+# spec:
+#   # For test purpose, set to NodePort
+#   type: LoadBalancer
+#   selector:
+#     app: todowebappapi
+#   ports:
+#     - protocol: TCP
+#       port: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: todowebappapi-hpa
+spec:
+  maxReplicas: 10 # define max replica count
+  minReplicas: 1  # define min replica count
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: todowebappapi-deployment
+  targetCPUUtilizationPercentage: 50 # target CPU utilization
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todowebappapi-configmap
+data:
+  todowebappapi_url: http://todowebappapi-service

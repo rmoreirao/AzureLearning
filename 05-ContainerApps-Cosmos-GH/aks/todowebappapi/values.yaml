@@ -1,0 +1,7 @@
+db:
+  connstring: connection-string-here-for-local-development 
+  dbname: Tasks
+  containername: Item
+image:
+  acrurl: acrtodoakswebappwe.azurecr.io
+  tag: latest
