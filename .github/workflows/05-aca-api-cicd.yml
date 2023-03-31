@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  rgName: rg-todoacawebapp-dev1-${{ secrets.AKS_05_LOCATION_SUFFIX }}
+  rgName: rg-todoacawebapp-dev1-we
   acaName: aca-api
 
 permissions:
