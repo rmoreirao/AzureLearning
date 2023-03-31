@@ -1,0 +1,49 @@
+version: '3.4'
+
+# Inspiration from https://learn.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/getting-started
+
+services:
+  daprtodowebapp.api:
+    image: ${DOCKER_REGISTRY-}daprtodowebappapi
+    # image: local/todowebapp/todowebapp-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=AccountEndpoint=https://cosmos-todoacawebapp-dev1-we.documents.azure.com:443/;AccountKey=Mi2VAutOoDZFDjrUBQSHVLGrs63KfRnkQ7nGeXZ6b4R74CsDqBZ21Tc2MfugFWptwTkMj6SN6wQJACDbrYlF3g==;
+      - CosmosDb__DatabaseName=Tasks
+      - CosmosDb__ContainerName=Item
+    build:
+      context: .
+      dockerfile: ToDoWebApp.API/Dockerfile
+    ports:
+      - "80"
+      - "51000:50001"
+
+  daprtodowebapp.api-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "dapr-api", "-app-port", "80" ]
+    depends_on:
+      - daprtodowebapp.api
+    network_mode: "service:daprtodowebapp.api"
+
+  daprtodowebapp.client:
+    image: ${DOCKER_REGISTRY-}daprtodowebappclient
+    # image: local/todowebapp/todowebapp-client
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    build:
+      context: .
+      dockerfile: ToDoWebApp.Client/Dockerfile
+    ports:
+      #- "80"
+      - "52000:50001"
+      - "80"
+    depends_on: 
+        - daprtodowebapp.api
+
+  daprtodowebapp.client-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "dapr-client", "-app-port", "80" ]
+    depends_on:
+      - daprtodowebapp.client
+    network_mode: "service:daprtodowebapp.client"
+    
