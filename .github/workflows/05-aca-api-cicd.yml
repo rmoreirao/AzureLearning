@@ -17,47 +17,47 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-   
-    steps:
-      - name: Log in with Azure
-        uses: Azure/login@v1
-        with:
-          # CLIENT_ID = Client ID of Service Principal
-          # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
-          creds: '{"clientId":"${{ secrets.ACA_05_CLIENT_ID }}","clientSecret":"${{ secrets.ACA_05_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ACA_05_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ACA_05_TENANT_ID }}"}'
-
-
-
-  # build:
+  # test:
   #   runs-on: ubuntu-latest
-
+   
   #   steps:
-  #     - name: Checkout to the branch
-  #       uses: actions/checkout@v2
-
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v1
-
-  #     - name: Log in to container registry
-  #       uses: docker/login-action@v1
+  #     - name: Log in with Azure
+  #       uses: Azure/login@v1
   #       with:
-  #         registry: ${{ secrets.ACA_05_ACR_LOGIN }}
-  #         username: ${{ secrets.ACA_05_ACR_NAME }}
-  #         password: ${{ secrets.ACA_05_ACR_PASSWORD }}
+  #         # CLIENT_ID = Client ID of Service Principal
+  #         # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
+  #         creds: '{"clientId":"${{ secrets.ACA_05_CLIENT_ID }}","clientSecret":"${{ secrets.ACA_05_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ACA_05_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ACA_05_TENANT_ID }}"}'
 
-  #     - name: Build and push container image to registry
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         push: true
-  #         tags: ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }} , ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:latest
-  #         file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
-  #         context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
+
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.ACA_05_ACR_LOGIN }}
+          username: ${{ secrets.ACA_05_ACR_NAME }}
+          password: ${{ secrets.ACA_05_ACR_PASSWORD }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }} , ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:latest
+          file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
+          context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
   
   deploy:
     runs-on: ubuntu-latest
-    # needs: build
+    needs: build
    
     steps:
       - name: Log in with Azure
