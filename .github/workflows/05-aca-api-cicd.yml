@@ -1,4 +1,4 @@
-name: 05-ACA-ToDo AKS Web App API-Build and deploy 
+name: 05-ACA-ToDo Web App API-Build and deploy 
 on:
   push:
     branches: [ "main" ]
@@ -55,24 +55,24 @@ jobs:
   #         file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
   #         context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
   
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
+  deploy:
+    runs-on: ubuntu-latest
+    # needs: build
    
-  #   steps:
-  #     - name: Log in with Azure
-  #       uses: Azure/login@v1
-  #       with:
-  #         # CLIENT_ID = Client ID of Service Principal
-  #         # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
-  #         creds: '{"clientId":"${{ secrets.ACA_05_CLIENT_ID }}","clientSecret":"${{ secrets.ACA_05_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ACA_05_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ACA_05_TENANT_ID }}"}'
+    steps:
+      - name: Log in with Azure
+        uses: Azure/login@v1
+        with:
+          # CLIENT_ID = Client ID of Service Principal
+          # CLIENT_SECRET = Password created for this specific connection - this can further enhanced
+          creds: '{"clientId":"${{ secrets.ACA_05_CLIENT_ID }}","clientSecret":"${{ secrets.ACA_05_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ACA_05_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ACA_05_TENANT_ID }}"}'
 
 
 
-  #     - name: Deploy to containerapp
-  #       uses: azure/CLI@v1
-  #       with:
-  #         inlineScript: |
-  #           az config set extension.use_dynamic_install=yes_without_prompt
-  #           az containerapp registry set -n ${{ env.acaName }} -g ${{ env.rgName }} --server ${{ secrets.ACA_05_ACR_LOGIN }} --username  ${{ secrets.ACA_05_ACR_NAME }} --password ${{ secrets.ACA_05_ACR_PASSWORD }}
-  #           az containerapp update -n ${{ env.acaName }} -g ${{ env.rgName }} --image ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }}
+      - name: Deploy to containerapp
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp registry set -n ${{ env.acaName }} -g ${{ env.rgName }} --server ${{ secrets.ACA_05_ACR_LOGIN }} --username  ${{ secrets.ACA_05_ACR_NAME }} --password ${{ secrets.ACA_05_ACR_PASSWORD }}
+            az containerapp update -n ${{ env.acaName }} -g ${{ env.rgName }} --image ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }}
