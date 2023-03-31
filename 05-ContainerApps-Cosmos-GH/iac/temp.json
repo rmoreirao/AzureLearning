@@ -1,0 +1,107 @@
+{
+    "id": "/subscriptions/afb8f550-216d-4848-b6f1-73b1bbf58f1e/resourceGroups/rg-todoacawebapp-dev1-we/providers/Microsoft.App/containerapps/aca-api-manual",
+    "name": "aca-api-manual",
+    "type": "Microsoft.App/containerApps",
+    "location": "West Europe",
+    "systemData": {
+        "createdBy": "rodrigo.moreirao@microsoft.com",
+        "createdByType": "User",
+        "createdAt": "2023-03-30T14:30:21.2195606",
+        "lastModifiedBy": "rodrigo.moreirao@microsoft.com",
+        "lastModifiedByType": "User",
+        "lastModifiedAt": "2023-03-30T14:55:18.3414945"
+    },
+    "properties": {
+        "provisioningState": "Succeeded",
+        "managedEnvironmentId": "/subscriptions/afb8f550-216d-4848-b6f1-73b1bbf58f1e/resourceGroups/rg-todoacawebapp-dev1-we/providers/Microsoft.App/managedEnvironments/acaenv-todoacawebapp-dev1-we",
+        "environmentId": "/subscriptions/afb8f550-216d-4848-b6f1-73b1bbf58f1e/resourceGroups/rg-todoacawebapp-dev1-we/providers/Microsoft.App/managedEnvironments/acaenv-todoacawebapp-dev1-we",
+        "workloadProfileType": null,
+        "outboundIpAddresses": [
+            "20.73.237.227"
+        ],
+        "latestRevisionName": "aca-api-manual--kp1q113",
+        "latestRevisionFqdn": "aca-api-manual--kp1q113.happytree-a6af5788.westeurope.azurecontainerapps.io",
+        "customDomainVerificationId": "9617B577BF7F26B2182365EFDEBA539C008DD80F4D4841F0E6E6C87E81F16163",
+        "configuration": {
+            "secrets": [
+                {
+                    "name": "cosmoskey"
+                },
+                {
+                    "name": "reg-pswd-8aecb047-8f8e"
+                }
+            ],
+            "activeRevisionsMode": "Single",
+            "ingress": {
+                "fqdn": "aca-api-manual.happytree-a6af5788.westeurope.azurecontainerapps.io",
+                "external": true,
+                "targetPort": 80,
+                "exposedPort": 0,
+                "transport": "Auto",
+                "traffic": [
+                    {
+                        "weight": 100,
+                        "latestRevision": true
+                    }
+                ],
+                "customDomains": null,
+                "allowInsecure": false,
+                "ipSecurityRestrictions": null
+            },
+            "registries": [
+                {
+                    "server": "acrtodoacawebappwedev1.azurecr.io",
+                    "username": "acrtodoacawebappwedev1",
+                    "passwordSecretRef": "reg-pswd-8aecb047-8f8e",
+                    "identity": ""
+                }
+            ],
+            "dapr": null,
+            "maxInactiveRevisions": null
+        },
+        "template": {
+            "revisionSuffix": "",
+            "containers": [
+                {
+                    "image": "acrtodoacawebappwedev1.azurecr.io/acrtodoacawebappwedev1/aca-api:latest",
+                    "name": "aca-api-manual",
+                    "env": [
+                        {
+                            "name": "ConnectionString",
+                            "secretRef": "cosmoskey"
+                        },
+                        {
+                            "name": "CosmosDb__DatabaseName",
+                            "value": "Tasks"
+                        },
+                        {
+                            "name": "CosmosDb__ContainerName",
+                            "value": "Item"
+                        },
+                        {
+                            "name": "ASPNETCORE_ENVIRONMENT",
+                            "value": "Development"
+                        }
+                    ],
+                    "resources": {
+                        "cpu": 0.25,
+                        "memory": "0.5Gi",
+                        "ephemeralStorage": "1Gi"
+                    },
+                    "probes": []
+                }
+            ],
+            "initContainers": null,
+            "scale": {
+                "minReplicas": 1,
+                "maxReplicas": 1,
+                "rules": null
+            },
+            "volumes": null
+        },
+        "eventStreamEndpoint": "https://westeurope.azurecontainerapps.dev/subscriptions/afb8f550-216d-4848-b6f1-73b1bbf58f1e/resourceGroups/rg-todoacawebapp-dev1-we/containerApps/aca-api-manual/eventstream"
+    },
+    "identity": {
+        "type": "None"
+    }
+}

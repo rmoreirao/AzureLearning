@@ -17,10 +17,8 @@ docker container stop $(docker container ls -aq)
 docker container prune -f
 
 
-# Kubernets
-### Commnads
-https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-kubectl get all
-kubectl cluster-info
+# Upload Image to ACR
+
+az acr build --registry $ACR_NAME --image "tasksmanager/$BACKEND_API_NAME" --file 'ToDoWebApp.API/Dockerfile' . 
 
 ### 

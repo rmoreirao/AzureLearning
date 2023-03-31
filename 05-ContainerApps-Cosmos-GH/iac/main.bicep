@@ -49,18 +49,19 @@ module acaEnv './acaenvironment.bicep' = {
   scope: resourceGroup()
 }
 
-var containerRegistry = acr.outputs.loginServer
+var containerRegistryUrl = acr.outputs.loginServer
 var containerRegistryUsername = acr.outputs.name
 
 var acaApiName = 'aca-api'
-var acaApiNameImage = '${containerRegistry}/${acaApiName}:latest'
+var acaApiNameImage = '${containerRegistryUrl}/${containerRegistryUsername}/${acaApiName}:latest'
 
 var acaClientName = 'aca-client'
-var acaClientNameImage = '${containerRegistry}/${acaClientName}:latest'
+var acaClientNameImage = '${containerRegistryUrl}/${containerRegistryUsername}/${acaClientName}:latest'
 
 // var cosmosdbConnectionString = listKeys(cosmosdbResource.id, cosmosdbResource.apiVersion).primaryMasterKey
 var cosmosdbConnectionString = cosmosdb.outputs.connectionString
 var registryPassword = acr.outputs.password
+// var registryPassword = 'FohO14ENTFIq6mZ80lQ/yePd+SDydosIhfxTDiDKHh+ACRBqAKbq'
 param registryPassName string = 'registry-password'
 
 module acaApi './containerApp.bicep' = {
@@ -75,11 +76,11 @@ module acaApi './containerApp.bicep' = {
     environmentId: acaEnv.outputs.id
     containerPort: 80
     containerImage: acaApiNameImage
-    containerRegistry: containerRegistry
+    containerRegistry: containerRegistryUrl
     containerRegistryUsername: containerRegistryUsername
     isPrivateRegistry: true
     registryPassName: registryPassName
-    isExternalIngress: false
+    isExternalIngress: true
     enableIngress: true
     minReplicas: 1
     secrets: [
@@ -95,8 +96,20 @@ module acaApi './containerApp.bicep' = {
     ]
     env: [
       {
-        name: 'ApplicationInsights__ConnectionString'
+        name: 'ConnectionString'
         secretRef: 'cosmoskey'
+      }
+      {
+          name: 'CosmosDb__DatabaseName'
+          value: 'Tasks'
+      }
+      {
+          name: 'CosmosDb__ContainerName'
+          value: 'Item'
+      }
+      {
+          name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Development'
       }
     ]
     revisionMode:  'Single'
@@ -104,3 +117,43 @@ module acaApi './containerApp.bicep' = {
   scope: resourceGroup()
 }
 
+
+module acaClient './containerApp.bicep' = {
+  name: '${deployment().name}--${acaClientName}'
+  dependsOn: [
+    acaEnv
+    acr
+  ]
+  params: {
+    location: location
+    containerAppName: acaClientName
+    environmentId: acaEnv.outputs.id
+    containerPort: 80
+    containerImage: acaClientNameImage
+    containerRegistry: containerRegistryUrl
+    containerRegistryUsername: containerRegistryUsername
+    isPrivateRegistry: true
+    registryPassName: registryPassName
+    isExternalIngress: true
+    enableIngress: true
+    minReplicas: 1
+    secrets: [
+      {
+        name: registryPassName
+        value: registryPassword
+      }
+    ]
+    env: [
+      {
+        name: 'ToDoAPIUrl'
+        value: 'https://${acaApi.outputs.fqdn}'
+      }
+      {
+          name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Development'
+      }
+    ]
+    revisionMode:  'Single'
+  }
+  scope: resourceGroup()
+}

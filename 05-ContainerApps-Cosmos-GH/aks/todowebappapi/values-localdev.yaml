@@ -1,7 +1,0 @@
-db:
-  connstring: conn string here
-  dbname: Tasks
-  containername: Item
-image:
-  acrurl: local
-  tag: latest

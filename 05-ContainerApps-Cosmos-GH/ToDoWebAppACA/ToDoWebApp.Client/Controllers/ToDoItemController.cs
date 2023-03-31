@@ -11,9 +11,9 @@
 
     public class ToDoItemController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<ToDoItemController> _logger;
         private readonly HttpClient _httpClient;
-        public ToDoItemController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory)
+        public ToDoItemController(ILogger<ToDoItemController> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("ToDoAPI");
@@ -43,7 +43,9 @@
             if (ModelState.IsValid)
             {
                 item.Id = Guid.NewGuid().ToString();
+                _logger.LogInformation("Adding item with id: {0}", item.Id);
                 await _httpClient.PostAsJsonAsync("api/todoitem", item);
+                _logger.LogInformation("Added item with id: {0}", item.Id);
                 return RedirectToAction("Index");
             }
             else

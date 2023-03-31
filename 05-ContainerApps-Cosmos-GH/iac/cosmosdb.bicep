@@ -73,4 +73,4 @@ resource cosmosDbName_Tasks 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@
 }
 
 output name string = cosmosDbName
-output connectionString string = listKeys(cosmosDb.id, cosmosDb.apiVersion).primaryMasterKey
+output connectionString string = cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
