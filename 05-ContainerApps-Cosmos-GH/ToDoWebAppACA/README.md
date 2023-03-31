@@ -1,7 +1,10 @@
-# Code based on this course:
-https://www.udemy.com/course/deploying-net-microservices-with-k8s-aks-and-azure-devops/
-...
 
+# Description
+
+This is an Azure Container App sample using ASPNET Core 6 and CosmosDB.
+It contains 2 services: a client app and an API app.
+To make it easier, I left everything as Development environment and maximun debug.
+To run this, first you need to create the ACR, create the images, and then run the IaC. 
 # Docker and Docker Compose
 #### To build the images using docker compose
 docker-compose -f docker-compose.yml -f docker-compose.override.yml build
@@ -24,3 +27,8 @@ Client> az acr build --registry acrtodoacawebappwedev1 --image "acrtodoacawebapp
 
 # IaC
 
+Details on how to run it manually on main.bicep file
+
+# Docs
+
+Check other docs here: https://github.com/rmoreirao/AzureContainerAppsFirstApp
