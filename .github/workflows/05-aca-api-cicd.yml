@@ -37,6 +37,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.ACA_05_ACR_LOGIN }}/aca-api:${{ github.sha }} , ${{ secrets.ACA_05_ACR_LOGIN }}/aca-api:latest
+          tags: ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/aca-api:${{ github.sha }} , ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/aca-api:latest
           file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
           context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
