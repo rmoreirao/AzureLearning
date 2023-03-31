@@ -19,6 +19,8 @@ docker container prune -f
 
 # Upload Image to ACR
 
-az acr build --registry $ACR_NAME --image "tasksmanager/$BACKEND_API_NAME" --file 'ToDoWebApp.API/Dockerfile' . 
+API> az acr build --registry acrtodoacawebappwedev1 --image "acrtodoacawebappwedev1/aca-api" --file 'ToDoWebApp.API/Dockerfile' . 
+Client> az acr build --registry acrtodoacawebappwedev1 --image "acrtodoacawebappwedev1/aca-client" --file 'ToDoWebApp.Client/Dockerfile' . 
 
-### 
+# IaC
+
