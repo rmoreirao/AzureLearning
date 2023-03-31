@@ -30,7 +30,7 @@ jobs:
 
 
 
-  build:
+  build_deploy:
     runs-on: ubuntu-latest
 
     steps:
