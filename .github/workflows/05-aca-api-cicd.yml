@@ -29,9 +29,9 @@ jobs:
       - name: Log in to container registry
         uses: docker/login-action@v1
         with:
-          registry: ${{ secrets.05_ACR_LOGIN }}
-          username: ${{ secrets.05_ACR_NAME }}
-          password: ${{ secrets.05_ACR_PASSWORD }}
+          registry: ${{ secrets.ACA_05_ACR_LOGIN }}
+          username: ${{ secrets.ACA_05_ACR_NAME }}
+          password: ${{ secrets.ACA_05_ACR_PASSWORD }}
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v2
@@ -39,4 +39,4 @@ jobs:
           push: true
           tags: ${{ secrets.05_ACR_LOGIN }}/aca-api:${{ github.sha }} , ${{ secrets.05_ACR_LOGIN }}/aca-api:latest
           file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
-          context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA
+          context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
