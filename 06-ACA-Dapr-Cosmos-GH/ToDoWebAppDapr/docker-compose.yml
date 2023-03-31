@@ -1,6 +1,7 @@
 version: '3.4'
 
 # Inspiration from https://learn.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/getting-started
+# and from: https://medium.com/@__hungrywolf/microservices-service-to-service-to-invocation-with-dapr-and-net-22f2e0be2779
 
 services:
   daprtodowebapp.api:
@@ -8,7 +9,7 @@ services:
     # image: local/todowebapp/todowebapp-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=AccountEndpoint=https://cosmos-todoacawebapp-dev1-we.documents.azure.com:443/;AccountKey=Mi2VAutOoDZFDjrUBQSHVLGrs63KfRnkQ7nGeXZ6b4R74CsDqBZ21Tc2MfugFWptwTkMj6SN6wQJACDbrYlF3g==;
+      - ConnectionString=<conn string here>
       - CosmosDb__DatabaseName=Tasks
       - CosmosDb__ContainerName=Item
     build:

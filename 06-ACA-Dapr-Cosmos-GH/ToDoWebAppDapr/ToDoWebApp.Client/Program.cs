@@ -6,9 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient("ToDoAPI", client => {
-    client.BaseAddress = new Uri(builder.Configuration["ToDoAPIUrl"]);
-});
+//builder.Services.AddHttpClient("ToDoAPI", client => {
+//    client.BaseAddress = new Uri(builder.Configuration["ToDoAPIUrl"]);
+//});
 
 builder.Services.AddSingleton<DaprClient>(_ => new DaprClientBuilder().Build());
 
