@@ -54,12 +54,13 @@ jobs:
           tags: ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }} , ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:latest
           file: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
           context: 05-ContainerApps-Cosmos-GH/ToDoWebAppACA 
-  
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
    
-    steps:
+  #   steps:
+
       - name: Log in with Azure
         uses: Azure/login@v1
         with:
@@ -76,3 +77,6 @@ jobs:
             az config set extension.use_dynamic_install=yes_without_prompt
             az containerapp registry set -n ${{ env.acaName }} -g ${{ env.rgName }} --server ${{ secrets.ACA_05_ACR_LOGIN }} --username  ${{ secrets.ACA_05_ACR_NAME }} --password ${{ secrets.ACA_05_ACR_PASSWORD }}
             az containerapp update -n ${{ env.acaName }} -g ${{ env.rgName }} --image ${{ secrets.ACA_05_ACR_LOGIN }}/${{ secrets.ACA_05_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }}
+  
+
+      
