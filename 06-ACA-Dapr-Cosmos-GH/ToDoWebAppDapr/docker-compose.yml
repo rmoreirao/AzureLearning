@@ -9,19 +9,28 @@ services:
     # image: local/todowebapp/todowebapp-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=<conn string here>
+      - ConnectionString=AccountEndpoint=https://cosmos-todoacawebapp-dev1-we.documents.azure.com:443/;AccountKey=MUW0l4uf4mayHCp5eetrgVmZc8oVKV2T9FQaj7ui8lesbSWV4ObteLKLE8h6R5q4CERVdRlFlHeXACDb7nMcZA==;
       - CosmosDb__DatabaseName=Tasks
       - CosmosDb__ContainerName=Item
     build:
       context: .
       dockerfile: ToDoWebApp.API/Dockerfile
+    
     ports:
       - "80"
       - "51000:50001"
+    depends_on:
+      - mongo
 
   daprtodowebapp.api-dapr:
-    image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "dapr-api", "-app-port", "80" ]
+    image: "daprio/daprd:edge"
+    command: [ "./daprd", 
+        "-app-id", "dapr-api", 
+        "-app-port", "80" ,
+        "-components-path", "/components",
+        "-log-level", "debug"]
+    volumes:
+      - "./components/:/components"
     depends_on:
       - daprtodowebapp.api
     network_mode: "service:daprtodowebapp.api"
@@ -42,9 +51,83 @@ services:
         - daprtodowebapp.api
 
   daprtodowebapp.client-dapr:
-    image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "dapr-client", "-app-port", "80" ]
+    image: "daprio/daprd:edge"
+    command: [ "./daprd", 
+        "-app-id", "dapr-client", 
+        "-app-port", "80",
+        "-components-path", "/components",
+        "-log-level", "debug"]
+    volumes:
+      - "./components/:/components"
     depends_on:
       - daprtodowebapp.client
     network_mode: "service:daprtodowebapp.client"
+  mongo:
+    image: 'mongo'
+    hostname: mongodbhost
+    ports:
+      - '27017:27017'
+    expose:
+      - "27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - 'mongo:/data/db'
+volumes:
+  mongo:
     
+  #redis:
+  #  image: "redis:alpine"
+  #  hostname: redisstate
+  #  command: --port 6380
+  #  ports:
+  #    - "6380:6380"
+  #  expose:
+  #    - "6380"
+  
+  #redisjson:
+  #  image: "redislabs/rejson:2.0.6"
+  #  hostname: redisjson
+  #  ports:
+  #    - "6379:6379"
+   # expose:
+  #    - "6380"
+
+# https://learn.microsoft.com/en-us/azure/cosmos-db/docker-emulator-linux?tabs=sql-api%2Cssl-netstd21
+# https://localhost:8081/_explorer/index.html
+
+#  cosmosdb:
+#    container_name: cosmosdb
+#    image: "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator"
+#    hostname: cosmosdbhost
+#    tty: true
+#    restart: always
+#    mem_limit: 2G
+#    cpu_count: 2
+#    environment:
+#      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+#      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+#    ports:
+#       - "8081:8081"
+#       - "8900:8900"
+#       - "8901:8901"
+#       - "8979:8979"
+#       #- "10250:10250"
+#       - "10251:10251"
+#       - "10252:10252"
+#       - "10253:10253"
+#       - "10254:10254"
+#       - "10255:10255"
+#       #- "10256:10256"
+#       - "10350:10350"
+#    volumes:
+#       - vol_cosmos:/data/db
+#    expose:
+#      - "8081"
+
+#volumes: 
+#  vol_cosmos:  
+
+
+  

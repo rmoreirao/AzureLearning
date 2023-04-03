@@ -8,7 +8,7 @@
     using Microsoft.Extensions.Configuration;
     using ToDoWebApp.API.Models;
 
-    public class ToDoItemCosmosDbService : IToDoItemCosmosDbService
+    public class ToDoItemCosmosDbService : IToDoItemDbService
     {
         private Container _container;
 
