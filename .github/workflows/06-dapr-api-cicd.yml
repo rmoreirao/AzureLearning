@@ -3,7 +3,7 @@ on:
   push:
     branches: [ "main" ]
     paths: 
-      - '06-ACA-Dapr-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/**'
+      - '06-ACA-Dapr-Cosmos-GH/ToDoWebAppDapr/ToDoWebApp.API/**'
       - '.github/workflows/06-dapr-api-cicd.yml'
     
   workflow_dispatch:
