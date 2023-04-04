@@ -9,7 +9,6 @@ services:
     # image: local/todowebapp/todowebapp-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=AccountEndpoint=https://cosmos-todoacawebapp-dev1-we.documents.azure.com:443/;AccountKey=MUW0l4uf4mayHCp5eetrgVmZc8oVKV2T9FQaj7ui8lesbSWV4ObteLKLE8h6R5q4CERVdRlFlHeXACDb7nMcZA==;
       - CosmosDb__DatabaseName=Tasks
       - CosmosDb__ContainerName=Item
     build:
