@@ -147,10 +147,6 @@ module acaClient './containerApp.bicep' = {
     ]
     env: [
       {
-        name: 'ToDoAPIUrl'
-        value: 'https://${acaApi.outputs.fqdn}'
-      }
-      {
           name: 'ASPNETCORE_ENVIRONMENT'
           value: 'Development'
       }
@@ -160,7 +156,7 @@ module acaClient './containerApp.bicep' = {
   scope: resourceGroup()
 }
 
-var daprStateStoreName = '${environmentName}/tasksstate'
+var daprStateStoreName = '${environmentName}/todostatestore'
 
 resource stateDaprComponent 'Microsoft.App/managedEnvironments/daprComponents@2022-01-01-preview' = {
   name: daprStateStoreName
