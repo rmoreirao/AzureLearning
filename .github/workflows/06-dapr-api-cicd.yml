@@ -40,8 +40,8 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DAPR_06_ACR_LOGIN }}/${{ secrets.DAPR_06_ACR_NAME }}/${{ env.acaName }}:${{ github.sha }} , ${{ secrets.DAPR_06_ACR_LOGIN }}/${{ secrets.DAPR_06_ACR_NAME }}/${{ env.acaName }}:latest
-          file: 06-ACA-Dapr-Cosmos-GH/ToDoWebAppACA/ToDoWebApp.API/Dockerfile
-          context: 06-ACA-Dapr-Cosmos-GH/ToDoWebAppACA 
+          file: 06-ACA-Dapr-Cosmos-GH/ToDoWebAppDapr/ToDoWebApp.API/Dockerfile
+          context: 06-ACA-Dapr-Cosmos-GH/ToDoWebAppDapr 
 
   # deploy:
   #   runs-on: ubuntu-latest
