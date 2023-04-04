@@ -90,7 +90,7 @@
             // var response = await _httpClient.GetAsync("api/todoitem/"+ id);
             // var content = await response.Content.ReadAsStringAsync();
             // var item = JsonConvert.DeserializeObject<ToDoItem>(content);
-            var item = await _daprClient.InvokeMethodAsync<ToDoItem>(HttpMethod.Get, "dapr-api", $"api/tasks/{id}");
+            var item = await _daprClient.InvokeMethodAsync<ToDoItem>(HttpMethod.Get, "dapr-api", $"api/todoitem/{id}");
 
             if (item == null)
             {

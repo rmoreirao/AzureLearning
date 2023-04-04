@@ -1,5 +1,5 @@
 using Dapr.Client;
-using todo.Services;
+//using todo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<IToDoItemDbService>(InitializeCosmosClientInstanceAsync(builder.Configuration).GetAwaiter().GetResult());
+//builder.Services.AddSingleton<IToDoItemDbService>(InitializeCosmosClientInstanceAsync(builder.Configuration).GetAwaiter().GetResult());
 
 var app = builder.Build();
 
@@ -28,16 +28,16 @@ app.MapControllers();
 
 app.Run();
 
-static async Task<IToDoItemDbService> InitializeCosmosClientInstanceAsync(Microsoft.Extensions.Configuration.ConfigurationManager configuration)
-{
-    var configurationSection = configuration.GetSection("CosmosDb");
-    string databaseName = configurationSection.GetSection("DatabaseName").Value;
-    string containerName = configurationSection.GetSection("ContainerName").Value;
-    string databaseConnectionString = configuration["ConnectionString"];
-    var client = new Microsoft.Azure.Cosmos.CosmosClient(databaseConnectionString);
-    IToDoItemDbService cosmosDbService = new ToDoItemCosmosDbService(client, databaseName, containerName);
-    Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+//static async Task<IToDoItemDbService> InitializeCosmosClientInstanceAsync(Microsoft.Extensions.Configuration.ConfigurationManager configuration)
+//{
+//    var configurationSection = configuration.GetSection("CosmosDb");
+//    string databaseName = configurationSection.GetSection("DatabaseName").Value;
+//    string containerName = configurationSection.GetSection("ContainerName").Value;
+//    string databaseConnectionString = configuration["ConnectionString"];
+//    var client = new Microsoft.Azure.Cosmos.CosmosClient(databaseConnectionString);
+//    IToDoItemDbService cosmosDbService = new ToDoItemCosmosDbService(client, databaseName, containerName);
+//    Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+//    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
 
-    return cosmosDbService;
-}
+//    return cosmosDbService;
+//}

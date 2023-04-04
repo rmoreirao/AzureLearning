@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using todo.Services;
+//using todo.Services;
 using ToDoWebApp.API.Models;
 
 namespace ToDoWebApp.API.Controllers
@@ -16,10 +16,11 @@ namespace ToDoWebApp.API.Controllers
 
         private readonly ILogger<ToDoItemController> _logger;
         private readonly DaprClient _daprClient;
-        private readonly IToDoItemDbService _cosmosDbService;
-        public ToDoItemController(ILogger<ToDoItemController> logger, IToDoItemDbService cosmosDbService, DaprClient daprClient)
+        //private readonly IToDoItemDbService _cosmosDbService;
+        //public ToDoItemController(ILogger<ToDoItemController> logger, IToDoItemDbService cosmosDbService, DaprClient daprClient)
+        public ToDoItemController(ILogger<ToDoItemController> logger, DaprClient daprClient)
         {
-            _cosmosDbService = cosmosDbService;
+            //_cosmosDbService = cosmosDbService;
             _logger = logger;
             _daprClient = daprClient;
         }
@@ -28,14 +29,9 @@ namespace ToDoWebApp.API.Controllers
         public async Task<IEnumerable<ToDoItem>> Get()
         {
             _logger.LogInformation("Getting all items");
-            Dictionary<string, string> metadata = new();
-            //{ "contentType", "application/json" }, { "queryIndexName", "orgIndx" } };
-            metadata.Add("contentType", "application/json");
-            metadata.Add("queryIndexName", "todoIndex");
-            //return await _cosmosDbService.GetItemsAsync("SELECT * FROM c");
+            Dictionary<string, string> metadata = new() { { "contentType", "application/json" } };
             var query = "{" +
                 "\"filter\": {" +
-                    //"\"EQ\": { \"value.Id\": \"1\" }" +
                 "}" +
             "}";
             var todoItems = await _daprClient.QueryStateAsync<ToDoItem>(STORE_NAME, query,metadata: metadata);
