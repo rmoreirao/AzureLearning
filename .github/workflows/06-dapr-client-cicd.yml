@@ -1,4 +1,4 @@
-name: 05-ACA-ToDo Web App Client-Build and deploy 
+name: 06-Dapr-ToDo Web App Client-Build and deploy 
 on:
   push:
     branches: [ "main" ]
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  rgName: rg-todoacawebapp-dev1-we
+  rgName: rg-tododaprwebapp-dev1-we
   acaName: dapr-client
 
 permissions:
