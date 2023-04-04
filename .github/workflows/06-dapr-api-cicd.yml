@@ -10,7 +10,7 @@ on:
 
 env:
   rgName: rg-tododaprwebapp-dev1-we
-  acaName: aca-api
+  acaName: dapr-api
 
 permissions:
   id-token: write
