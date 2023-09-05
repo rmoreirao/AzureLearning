@@ -22,7 +22,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
 
         - name: Log in with Azure
           uses: Azure/login@v1
@@ -49,7 +49,7 @@ jobs:
       actions: read
 
     steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
 
         - name: Log in with Azure
           uses: Azure/login@v1
